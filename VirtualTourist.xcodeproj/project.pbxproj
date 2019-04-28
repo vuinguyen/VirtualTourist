@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		526040CC2276228D009ADBF7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 526040CB2276228D009ADBF7 /* AppDelegate.swift */; };
-		526040CE2276228D009ADBF7 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 526040CD2276228D009ADBF7 /* ViewController.swift */; };
+		526040CE2276228D009ADBF7 /* TravelLocationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 526040CD2276228D009ADBF7 /* TravelLocationsViewController.swift */; };
 		526040D12276228D009ADBF7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 526040CF2276228D009ADBF7 /* Main.storyboard */; };
 		526040D42276228D009ADBF7 /* VirtualTourist.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 526040D22276228D009ADBF7 /* VirtualTourist.xcdatamodeld */; };
 		526040D62276228E009ADBF7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 526040D52276228E009ADBF7 /* Assets.xcassets */; };
@@ -29,7 +29,7 @@
 /* Begin PBXFileReference section */
 		526040C82276228D009ADBF7 /* VirtualTourist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VirtualTourist.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		526040CB2276228D009ADBF7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		526040CD2276228D009ADBF7 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		526040CD2276228D009ADBF7 /* TravelLocationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelLocationsViewController.swift; sourceTree = "<group>"; };
 		526040D02276228D009ADBF7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		526040D32276228D009ADBF7 /* VirtualTourist.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = VirtualTourist.xcdatamodel; sourceTree = "<group>"; };
 		526040D52276228E009ADBF7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -79,11 +79,11 @@
 		526040CA2276228D009ADBF7 /* VirtualTourist */ = {
 			isa = PBXGroup;
 			children = (
+				526040EE227644A2009ADBF7 /* Model */,
+				526040F022764CA3009ADBF7 /* View */,
+				526040EF227644B1009ADBF7 /* Controller */,
 				526040CB2276228D009ADBF7 /* AppDelegate.swift */,
-				526040CD2276228D009ADBF7 /* ViewController.swift */,
-				526040CF2276228D009ADBF7 /* Main.storyboard */,
 				526040D52276228E009ADBF7 /* Assets.xcassets */,
-				526040D72276228E009ADBF7 /* LaunchScreen.storyboard */,
 				526040DA2276228E009ADBF7 /* Info.plist */,
 				526040D22276228D009ADBF7 /* VirtualTourist.xcdatamodeld */,
 			);
@@ -97,6 +97,30 @@
 				526040E52276228E009ADBF7 /* Info.plist */,
 			);
 			path = VirtualTouristTests;
+			sourceTree = "<group>";
+		};
+		526040EE227644A2009ADBF7 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		526040EF227644B1009ADBF7 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				526040CD2276228D009ADBF7 /* TravelLocationsViewController.swift */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		526040F022764CA3009ADBF7 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				526040CF2276228D009ADBF7 /* Main.storyboard */,
+				526040D72276228E009ADBF7 /* LaunchScreen.storyboard */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -200,7 +224,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				526040CE2276228D009ADBF7 /* ViewController.swift in Sources */,
+				526040CE2276228D009ADBF7 /* TravelLocationsViewController.swift in Sources */,
 				526040CC2276228D009ADBF7 /* AppDelegate.swift in Sources */,
 				526040D42276228D009ADBF7 /* VirtualTourist.xcdatamodeld in Sources */,
 			);
