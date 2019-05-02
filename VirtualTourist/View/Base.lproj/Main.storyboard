@@ -20,9 +20,15 @@
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="4fc-dz-5Qo">
                                 <rect key="frame" x="0.0" y="64" width="414" height="628"/>
+                                <gestureRecognizers/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="0n9-Vy-6Jg" appends="YES" id="RNl-9A-mH6"/>
+                                    <outletCollection property="gestureRecognizers" destination="0n9-Vy-6Jg" appends="YES" id="xeC-mh-5Oj"/>
+                                </connections>
                             </mapView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <gestureRecognizers/>
                         <constraints>
                             <constraint firstItem="4fc-dz-5Qo" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="Hz9-pk-OyC"/>
                             <constraint firstItem="4fc-dz-5Qo" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="d61-dw-vUW"/>
@@ -30,14 +36,25 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="4fc-dz-5Qo" secondAttribute="bottom" id="lo6-mJ-JQu"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <connections>
+                            <outletCollection property="gestureRecognizers" destination="0n9-Vy-6Jg" appends="YES" id="zZw-AR-n4B"/>
+                        </connections>
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="Virtual Tourist" id="bBa-lp-Vi5">
                         <barButtonItem key="rightBarButtonItem" systemItem="edit" id="vZj-au-ycF"/>
                     </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
+                    <connections>
+                        <outlet property="mapView" destination="4fc-dz-5Qo" id="Sa3-Tq-s4B"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <pongPressGestureRecognizer allowableMovement="10" minimumPressDuration="0.5" id="0n9-Vy-6Jg">
+                    <connections>
+                        <action selector="addPin:" destination="BYZ-38-t0r" id="yGE-c9-azX"/>
+                    </connections>
+                </pongPressGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="906" y="677"/>
         </scene>
