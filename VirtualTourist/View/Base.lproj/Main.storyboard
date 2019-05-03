@@ -23,7 +23,6 @@
                                 <gestureRecognizers/>
                                 <connections>
                                     <outletCollection property="gestureRecognizers" destination="0n9-Vy-6Jg" appends="YES" id="RNl-9A-mH6"/>
-                                    <outletCollection property="gestureRecognizers" destination="0n9-Vy-6Jg" appends="YES" id="xeC-mh-5Oj"/>
                                 </connections>
                             </mapView>
                         </subviews>
@@ -36,9 +35,6 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="4fc-dz-5Qo" secondAttribute="bottom" id="lo6-mJ-JQu"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                        <connections>
-                            <outletCollection property="gestureRecognizers" destination="0n9-Vy-6Jg" appends="YES" id="zZw-AR-n4B"/>
-                        </connections>
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="Virtual Tourist" id="bBa-lp-Vi5">
@@ -57,6 +53,21 @@
                 </pongPressGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="906" y="677"/>
+        </scene>
+        <!--Photo Album View Controller-->
+        <scene sceneID="ACZ-JK-cqY">
+            <objects>
+                <viewController id="y2Z-45-agZ" customClass="PhotoAlbumViewController" customModule="VirtualTourist" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="bEA-X6-oiJ">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <viewLayoutGuide key="safeArea" id="bve-sc-d1w"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="hfn-q0-cyI" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1699" y="677"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="edA-x6-cLq">
