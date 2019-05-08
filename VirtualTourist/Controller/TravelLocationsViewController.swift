@@ -13,8 +13,25 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
 
   @IBOutlet weak var mapView: MKMapView!
 
-  var annotations = [MKPointAnnotation]()
+  @IBAction func editPins(_ sender: Any) {
 
+    print("tapped on edit button")
+
+    if inEditPinsMode == false {
+      //self.navigationItem.rightBarButtonItem = editButton
+      self.view.frame.origin.y = 0
+    } else {
+     // self.navigationItem.rightBarButtonItem = doneButton
+      self.view.frame.origin.y = -75
+    }
+
+    inEditPinsMode = !inEditPinsMode
+  }
+
+  let editButton = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: nil)
+  let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: nil)
+  var annotations = [MKPointAnnotation]()
+  var inEditPinsMode = false
 
   @IBAction func addPin(_ gestureRecognizer: UILongPressGestureRecognizer) {
     //sender.minimumPressDuration
@@ -34,8 +51,47 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     super.viewDidLoad()
     // Do any additional setup after loading the view.
 
+
+   // inEditPinsMode = true
+    // check for edit pins mode
+    //checkPinsMode()
+
+   // configureRightBarButtonItem()
+
     annotations.append(defaultAnnotation())
     mapView.addAnnotations(annotations)
+  }
+
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+
+    /*
+    inEditPinsMode = true
+    // check for edit pins mode
+    //checkPinsMode()
+    configureRightBarButtonItem()
+ */
+
+  }
+
+  func configureRightBarButtonItem() {
+    if inEditPinsMode == false {
+      self.navigationItem.rightBarButtonItem = editButton
+      self.view.frame.origin.y = 200
+    } else {
+      self.navigationItem.rightBarButtonItem = doneButton
+      self.view.frame.origin.y = 0
+    }
+
+    inEditPinsMode = !inEditPinsMode
+  }
+
+  func checkPinsMode() {
+    if inEditPinsMode == true {
+      view.frame.origin.y = 0
+    } else {
+      view.frame.origin.y = -75
+    }
   }
 
   // persist zoom level and map center here

@@ -19,7 +19,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="4fc-dz-5Qo">
-                                <rect key="frame" x="0.0" y="64" width="375" height="484"/>
+                                <rect key="frame" x="0.0" y="64" width="375" height="559"/>
                                 <gestureRecognizers/>
                                 <connections>
                                     <outlet property="delegate" destination="BYZ-38-t0r" id="Fey-wn-Lva"/>
@@ -27,7 +27,7 @@
                                 </connections>
                             </mapView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RDy-qg-gLt">
-                                <rect key="frame" x="0.0" y="548" width="375" height="75"/>
+                                <rect key="frame" x="0.0" y="623" width="375" height="75"/>
                                 <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="75" id="TIG-HY-oPI"/>
@@ -39,7 +39,7 @@
                         <gestureRecognizers/>
                         <constraints>
                             <constraint firstItem="RDy-qg-gLt" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="CSk-Xu-h02"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="RDy-qg-gLt" secondAttribute="bottom" id="E7L-St-kxf"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="RDy-qg-gLt" secondAttribute="bottom" constant="-75" id="E7L-St-kxf"/>
                             <constraint firstItem="4fc-dz-5Qo" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="Hz9-pk-OyC"/>
                             <constraint firstItem="4fc-dz-5Qo" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="d61-dw-vUW"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="4fc-dz-5Qo" secondAttribute="trailing" id="ezb-8p-Ukd"/>
@@ -50,7 +50,11 @@
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="Virtual Tourist" id="bBa-lp-Vi5">
-                        <barButtonItem key="rightBarButtonItem" systemItem="edit" id="vZj-au-ycF"/>
+                        <barButtonItem key="rightBarButtonItem" systemItem="edit" id="vZj-au-ycF">
+                            <connections>
+                                <action selector="editPins:" destination="BYZ-38-t0r" id="vn7-bq-E83"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
