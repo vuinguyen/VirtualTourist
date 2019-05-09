@@ -50,7 +50,7 @@
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="Virtual Tourist" id="bBa-lp-Vi5">
-                        <barButtonItem key="rightBarButtonItem" systemItem="edit" id="vZj-au-ycF">
+                        <barButtonItem key="rightBarButtonItem" title="Edit" id="vZj-au-ycF">
                             <connections>
                                 <action selector="editPins:" destination="BYZ-38-t0r" id="vn7-bq-E83"/>
                             </connections>
@@ -58,7 +58,9 @@
                     </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
+                        <outlet property="editPinsButton" destination="vZj-au-ycF" id="OVc-Ou-LJR"/>
                         <outlet property="mapView" destination="4fc-dz-5Qo" id="Sa3-Tq-s4B"/>
+                        <outlet property="tapPinsToDeleteButton" destination="RDy-qg-gLt" id="hcR-AY-O8M"/>
                         <segue destination="y2Z-45-agZ" kind="show" identifier="photoAlbumSegue" id="yG1-f1-3sb"/>
                     </connections>
                 </viewController>

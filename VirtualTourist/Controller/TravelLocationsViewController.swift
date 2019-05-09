@@ -12,24 +12,16 @@ import MapKit
 class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
 
   @IBOutlet weak var mapView: MKMapView!
-
+  @IBOutlet weak var tapPinsToDeleteButton: UIButton!
+  
+  @IBOutlet weak var editPinsButton: UIBarButtonItem!
   @IBAction func editPins(_ sender: Any) {
-
     print("tapped on edit button")
 
-    if inEditPinsMode == false {
-      //self.navigationItem.rightBarButtonItem = editButton
-      self.view.frame.origin.y = 0
-    } else {
-     // self.navigationItem.rightBarButtonItem = doneButton
-      self.view.frame.origin.y = -75
-    }
-
     inEditPinsMode = !inEditPinsMode
+    checkPinsMode()
   }
 
-  let editButton = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: nil)
-  let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: nil)
   var annotations = [MKPointAnnotation]()
   var inEditPinsMode = false
 
@@ -44,55 +36,29 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
       mapView.addAnnotation(annotation)
     }
   }
- 
 
+  // depending on inEditPinsMode, make sure the correct system button is displayed,
+  // the delete Pins button is displayed if applicable
+  func checkPinsMode() {
+    if inEditPinsMode == false {
+      self.view.frame.origin.y = 0
+      editPinsButton.title = "Edit"
+    } else {
+      self.view.frame.origin.y = -(tapPinsToDeleteButton.frame.size.height)
+      editPinsButton.title = "Done"
+    }
+  }
 
   override func viewDidLoad() {
     super.viewDidLoad()
     // Do any additional setup after loading the view.
 
-
-   // inEditPinsMode = true
-    // check for edit pins mode
-    //checkPinsMode()
-
-   // configureRightBarButtonItem()
+    checkPinsMode()
 
     annotations.append(defaultAnnotation())
     mapView.addAnnotations(annotations)
   }
 
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
-
-    /*
-    inEditPinsMode = true
-    // check for edit pins mode
-    //checkPinsMode()
-    configureRightBarButtonItem()
- */
-
-  }
-
-  func configureRightBarButtonItem() {
-    if inEditPinsMode == false {
-      self.navigationItem.rightBarButtonItem = editButton
-      self.view.frame.origin.y = 200
-    } else {
-      self.navigationItem.rightBarButtonItem = doneButton
-      self.view.frame.origin.y = 0
-    }
-
-    inEditPinsMode = !inEditPinsMode
-  }
-
-  func checkPinsMode() {
-    if inEditPinsMode == true {
-      view.frame.origin.y = 0
-    } else {
-      view.frame.origin.y = -75
-    }
-  }
 
   // persist zoom level and map center here
   func setMapDefaults() {
@@ -164,8 +130,17 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
 
     mapView.deselectAnnotation(view.annotation, animated: true)
 
+    if inEditPinsMode {
+      if let annotation = view.annotation {
+        mapView.removeAnnotation(annotation)
+        print("annotation removed!")
+      } else {
+        print("in edit pin mode but cannot grab the pin!")
+      }
+    } else {
     // segue into next viewcontroller here
-    performSegue(withIdentifier: "photoAlbumSegue", sender: self)
+      performSegue(withIdentifier: "photoAlbumSegue", sender: self)
+    }
   }
 
   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
