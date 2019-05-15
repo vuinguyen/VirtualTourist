@@ -95,33 +95,42 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     return annotation
   }
 
-  /*
-  func addAnnotationWithCoodinate(latitude: CLLocationDegrees, longitude: CLLocationDegrees) -> MKPointAnnotation{
-    let lat = CLLocationDegrees(latitude)
-    let long = CLLocationDegrees(longitude)
-    let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
-
-    // Here we create the annotation and set its coordiate, title, and subtitle properties
-    let annotation = MKPointAnnotation()
-    annotation.coordinate = coordinate
-    annotation.title = "current location"
-    annotation.subtitle = "more info"
-
- //   annotation.title = "\(firstName ) \(lastName)"
- //   if let mediaURL = mediaURL {
- //     annotation.subtitle = mediaURL
- //   }
-
-    return annotation
-  }
- */
-
   func addAnnotation(touchPoint: CGPoint) -> MKPointAnnotation {
     let newCoordinates = mapView.convert(touchPoint, toCoordinateFrom: mapView)
     let annotation = MKPointAnnotation()
     annotation.coordinate = newCoordinates
-    annotation.title = "current location"
     return annotation
+  }
+
+  func deletePin(annotation: MKAnnotation) {
+    let annotationToDelete = annotation
+
+    // use predicate to look for the Pin to delete and remove it
+    // from the current context
+    print("latitude is \(annotationToDelete.coordinate.latitude)")
+    print("longitude is \(annotationToDelete.coordinate.longitude)")
+    let latitudePredicate = NSPredicate(format: "latitude = %lf", annotationToDelete.coordinate.latitude)
+    let longitudePredicate = NSPredicate(format: "longitude = %lf", annotationToDelete.coordinate.longitude)
+    let coordinatePredicate = NSCompoundPredicate(type: .and, subpredicates: [latitudePredicate, longitudePredicate])
+
+    do {
+      let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Pin")
+      let pins = try managedContext.fetch(fetchRequest)
+      let PinToDelete = (pins as NSArray).filtered(using: coordinatePredicate) as! [NSManagedObject]
+      if PinToDelete.count >= 1 {
+
+        // Now, remove it from Core Data
+        managedContext.delete(PinToDelete[0])
+        try managedContext.save()
+
+        // remove it from the map
+        mapView.removeAnnotation(annotation)
+
+        print("annotation removed!")
+      }
+    } catch let error as NSError {
+      print("Could not fetch or save from context. \(error), \(error.userInfo)")
+    }
   }
 
   func addPin(touchPoint: CGPoint) -> MKPointAnnotation {
@@ -197,8 +206,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
 
     if inEditPinsMode {
       if let annotation = view.annotation {
-        mapView.removeAnnotation(annotation)
-        print("annotation removed!")
+        deletePin(annotation: annotation)
       } else {
         print("in edit pin mode but cannot grab the pin!")
       }
