@@ -8,6 +8,7 @@
 
 import UIKit
 import MapKit
+import CoreData
 
 class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
 
@@ -22,18 +23,24 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     checkPinsMode()
   }
 
+  var pins: [NSManagedObject] = []
   var annotations = [MKPointAnnotation]()
   var inEditPinsMode = false
 
-  @IBAction func addPin(_ gestureRecognizer: UILongPressGestureRecognizer) {
+  var appDelegate: AppDelegate!
+  var managedContext: NSManagedObjectContext!
+
+  @IBAction func dropPin(_ gestureRecognizer: UILongPressGestureRecognizer) {
     //sender.minimumPressDuration
     if gestureRecognizer.state == .ended {
       print("I did a long press!")
 
       // create annotation here
       let touchPoint = gestureRecognizer.location(in: mapView)
-      let annotation = addAnnotation(touchPoint: touchPoint)
+      let annotation = addPin(touchPoint: touchPoint)
+      //let annotation = addAnnotation(touchPoint: touchPoint)
       mapView.addAnnotation(annotation)
+      //appDelegate.saveContext()
     }
   }
 
@@ -55,10 +62,18 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
 
     checkPinsMode()
 
-    annotations.append(defaultAnnotation())
-    mapView.addAnnotations(annotations)
+    //annotations.append(defaultAnnotation())
+    //mapView.addAnnotations(annotations)
   }
 
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+
+    appDelegate = UIApplication.shared.delegate as? AppDelegate
+    managedContext = appDelegate.persistentContainer.viewContext
+
+    mapView.addAnnotations(fetchAllPins())
+  }
 
   // persist zoom level and map center here
   func setMapDefaults() {
@@ -80,6 +95,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     return annotation
   }
 
+  /*
   func addAnnotationWithCoodinate(latitude: CLLocationDegrees, longitude: CLLocationDegrees) -> MKPointAnnotation{
     let lat = CLLocationDegrees(latitude)
     let long = CLLocationDegrees(longitude)
@@ -90,15 +106,15 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     annotation.coordinate = coordinate
     annotation.title = "current location"
     annotation.subtitle = "more info"
-    /*
-    annotation.title = "\(firstName ) \(lastName)"
-    if let mediaURL = mediaURL {
-      annotation.subtitle = mediaURL
-    }
- */
+
+ //   annotation.title = "\(firstName ) \(lastName)"
+ //   if let mediaURL = mediaURL {
+ //     annotation.subtitle = mediaURL
+ //   }
 
     return annotation
   }
+ */
 
   func addAnnotation(touchPoint: CGPoint) -> MKPointAnnotation {
     let newCoordinates = mapView.convert(touchPoint, toCoordinateFrom: mapView)
@@ -107,6 +123,55 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     annotation.title = "current location"
     return annotation
   }
+
+  func addPin(touchPoint: CGPoint) -> MKPointAnnotation {
+    let coordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
+    let annotation = MKPointAnnotation()
+    annotation.coordinate = coordinate
+    annotation.title = "current location"
+
+    // save to Core Data
+    let entity =
+      NSEntityDescription.entity(forEntityName: "Pin",
+                                 in: managedContext)!
+
+    let pin = NSManagedObject(entity: entity,
+                                 insertInto: managedContext)
+
+    pin.setValue(coordinate.latitude, forKeyPath: "latitude")
+    pin.setValue(coordinate.longitude, forKeyPath: "longitude")
+
+    do {
+      try managedContext.save()
+      pins.append(pin)
+    } catch let error as NSError {
+      print("Could not save. \(error), \(error.userInfo)")
+    }
+
+    return annotation
+  }
+
+  func fetchAllPins() -> [MKAnnotation] {
+    var annotations: [MKAnnotation] = []
+    do {
+      let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Pin")
+      let pins = try managedContext.fetch(fetchRequest)
+      for pin in pins {
+        if let latitude = pin.value(forKeyPath: "latitude") as? Double,
+          let longitude = pin.value(forKeyPath: "longitude") as? Double {
+
+          let annotation = MKPointAnnotation()
+          annotation.coordinate.latitude = latitude
+          annotation.coordinate.longitude = longitude
+          annotations.append(annotation)
+        }
+      }
+    } catch let error as NSError {
+      print("Could not fetch. \(error), \(error.userInfo)")
+    }
+    return annotations
+  }
+
 
   func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
 
