@@ -11,6 +11,7 @@ import MapKit
 
 class PhotoAlbumViewController: UICollectionViewController {
 
+  @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
   @IBOutlet weak var mapView: MKMapView!
 
   @IBAction func getNewCollection(_ sender: Any) {
@@ -18,12 +19,29 @@ class PhotoAlbumViewController: UICollectionViewController {
 
   private let reusePhotoCellIdentifier = "PhotoCollectionViewCell"
 
+  var pics: [UIImage] = [UIImage]()
+
   override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+    let space:CGFloat = 3.0
+    let dimension = (view.frame.size.width - (2 * space)) / 3.0
+
+    flowLayout.minimumInteritemSpacing = space
+    flowLayout.minimumLineSpacing = space
+    flowLayout.itemSize = CGSize(width: dimension, height: dimension)
+
+    getDefaultPics()
+  }
+
+  func getDefaultPics() {
+    for _ in 0...11 {
+      if let image = UIImage(named: "Placeholder2") {
+        pics.append(image)
+      }
     }
-    
+  }
 
     /*
     // MARK: - Navigation
@@ -37,24 +55,18 @@ class PhotoAlbumViewController: UICollectionViewController {
 
   // MARK: UICollectionViewDataSource
   override func numberOfSections(in collectionView: UICollectionView) -> Int {
-    // #warning Incomplete implementation, return the number of sections
     return 1
   }
 
   override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-    // #warning Incomplete implementation, return the number of items
-    //return memes.count
-    return 1
+    return pics.count
   }
 
   override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reusePhotoCellIdentifier, for: indexPath)
-    //let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! MemeCollectionViewCell
-    //let meme = self.memes[(indexPath as NSIndexPath).row]
+    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reusePhotoCellIdentifier, for: indexPath) as! PhotoCollectionViewCell
+    let pic = self.pics[(indexPath as NSIndexPath).row]
 
-    //cell.memeImageView?.image = meme.memedImage
-    // Configure the cell
-
+    cell.photoImageView.image = pic
     return cell
   }
 
