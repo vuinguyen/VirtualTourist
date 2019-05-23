@@ -14,6 +14,7 @@
 		526040D62276228E009ADBF7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 526040D52276228E009ADBF7 /* Assets.xcassets */; };
 		526040D92276228E009ADBF7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 526040D72276228E009ADBF7 /* LaunchScreen.storyboard */; };
 		526040E42276228E009ADBF7 /* VirtualTouristTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 526040E32276228E009ADBF7 /* VirtualTouristTests.swift */; };
+		52DDF64622974297006665E9 /* PhotoCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52DDF64522974297006665E9 /* PhotoCollectionViewCell.swift */; };
 		52E3A1E4227CA0EB008320A0 /* PhotoAlbumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52E3A1E3227CA0EB008320A0 /* PhotoAlbumViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -39,6 +40,7 @@
 		526040DF2276228E009ADBF7 /* VirtualTouristTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VirtualTouristTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		526040E32276228E009ADBF7 /* VirtualTouristTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualTouristTests.swift; sourceTree = "<group>"; };
 		526040E52276228E009ADBF7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		52DDF64522974297006665E9 /* PhotoCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCollectionViewCell.swift; sourceTree = "<group>"; };
 		52E3A1E3227CA0EB008320A0 /* PhotoAlbumViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoAlbumViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -113,6 +115,7 @@
 			children = (
 				526040CD2276228D009ADBF7 /* TravelLocationsViewController.swift */,
 				52E3A1E3227CA0EB008320A0 /* PhotoAlbumViewController.swift */,
+				52DDF64522974297006665E9 /* PhotoCollectionViewCell.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -228,6 +231,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				526040CE2276228D009ADBF7 /* TravelLocationsViewController.swift in Sources */,
+				52DDF64622974297006665E9 /* PhotoCollectionViewCell.swift in Sources */,
 				526040CC2276228D009ADBF7 /* AppDelegate.swift in Sources */,
 				526040D42276228D009ADBF7 /* VirtualTourist.xcdatamodeld in Sources */,
 				52E3A1E4227CA0EB008320A0 /* PhotoAlbumViewController.swift in Sources */,

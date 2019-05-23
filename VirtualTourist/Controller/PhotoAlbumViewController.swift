@@ -7,10 +7,18 @@
 //
 
 import UIKit
+import MapKit
 
-class PhotoAlbumViewController: UIViewController {
+class PhotoAlbumViewController: UICollectionViewController {
 
-    override func viewDidLoad() {
+  @IBOutlet weak var mapView: MKMapView!
+
+  @IBAction func getNewCollection(_ sender: Any) {
+  }
+
+  private let reusePhotoCellIdentifier = "PhotoCollectionViewCell"
+
+  override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
@@ -26,5 +34,29 @@ class PhotoAlbumViewController: UIViewController {
         // Pass the selected object to the new view controller.
     }
     */
+
+  // MARK: UICollectionViewDataSource
+  override func numberOfSections(in collectionView: UICollectionView) -> Int {
+    // #warning Incomplete implementation, return the number of sections
+    return 1
+  }
+
+  override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    // #warning Incomplete implementation, return the number of items
+    //return memes.count
+    return 1
+  }
+
+  override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reusePhotoCellIdentifier, for: indexPath)
+    //let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! MemeCollectionViewCell
+    //let meme = self.memes[(indexPath as NSIndexPath).row]
+
+    //cell.memeImageView?.image = meme.memedImage
+    // Configure the cell
+
+    return cell
+  }
+
 
 }
