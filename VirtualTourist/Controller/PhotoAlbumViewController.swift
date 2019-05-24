@@ -19,7 +19,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
   private let reusePhotoCellIdentifier = "PhotoCollectionViewCell"
 
-  var pics: [UIImage] = [UIImage]()
+  var pics = [UIImage]()
   var mapAnnotation: MKPointAnnotation?
 
   override func viewDidLoad() {

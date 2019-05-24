@@ -32,16 +32,13 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
   var selectedAnnotation: MKPointAnnotation?
 
   @IBAction func dropPin(_ gestureRecognizer: UILongPressGestureRecognizer) {
-    //sender.minimumPressDuration
     if gestureRecognizer.state == .ended {
       print("I did a long press!")
 
       // create annotation here
       let touchPoint = gestureRecognizer.location(in: mapView)
       let annotation = addPin(touchPoint: touchPoint)
-      //let annotation = addAnnotation(touchPoint: touchPoint)
       mapView.addAnnotation(annotation)
-      //appDelegate.saveContext()
     }
   }
 
@@ -62,9 +59,6 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     // Do any additional setup after loading the view.
 
     checkPinsMode()
-
-    //annotations.append(defaultAnnotation())
-    //mapView.addAnnotations(annotations)
   }
 
   override func viewWillAppear(_ animated: Bool) {
@@ -148,6 +142,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     let pin = NSManagedObject(entity: entity,
                                  insertInto: managedContext)
 
+    print("latitude: \(coordinate.latitude), longitude: \(coordinate.longitude)")
     pin.setValue(coordinate.latitude, forKeyPath: "latitude")
     pin.setValue(coordinate.longitude, forKeyPath: "longitude")
 
@@ -170,6 +165,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         if let latitude = pin.value(forKeyPath: "latitude") as? Double,
           let longitude = pin.value(forKeyPath: "longitude") as? Double {
 
+          print("latitude: \(latitude), longitude: \(longitude)")
           let annotation = MKPointAnnotation()
           annotation.coordinate.latitude = latitude
           annotation.coordinate.longitude = longitude
@@ -201,7 +197,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
   }
 
   func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-    print("I've selected this annotation!")
+   // print("I've selected this annotation!")
 
     mapView.deselectAnnotation(view.annotation, animated: true)
 
@@ -211,7 +207,6 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
 
     if inEditPinsMode {
       deletePin(annotation: annotation)
-      print("in edit pin mode but cannot grab the pin!")
     } else {
     // segue into next viewcontroller here
       selectedAnnotation = annotation as? MKPointAnnotation
@@ -223,7 +218,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     if segue.identifier == "photoAlbumSegue" {
       let controller = segue.destination as! PhotoAlbumViewController
       controller.mapAnnotation = selectedAnnotation
-      print("I'm going to the photo album!")
+      //print("I'm going to the photo album!")
     }
   }
 
