@@ -160,6 +160,7 @@
                     <connections>
                         <outlet property="flowLayout" destination="XGD-to-DNi" id="Sd0-va-tpN"/>
                         <outlet property="mapView" destination="Kpa-9h-MNe" id="nlR-uV-TR7"/>
+                        <outlet property="photoCollectionView" destination="ExH-u8-eJF" id="S5Z-1B-qb8"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="hfn-q0-cyI" userLabel="First Responder" sceneMemberID="firstResponder"/>

@@ -11,14 +11,20 @@ import MapKit
 
 class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
+  @IBOutlet weak var photoCollectionView: UICollectionView!
   @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
   @IBOutlet weak var mapView: MKMapView!
 
   @IBAction func getNewCollection(_ sender: Any) {
+    let currentNumber = resultsPageNumber
+
+    (pics, resultsPageNumber) = PhotoRequest.getPics(currentNumber) as! ([UIImage], Int?) as! ([UIImage], Int)
+    photoCollectionView.reloadData()
   }
 
   private let reusePhotoCellIdentifier = "PhotoCollectionViewCell"
 
+  var resultsPageNumber: Int = 0
   var pics = [UIImage]()
   var mapAnnotation: MKPointAnnotation?
 
@@ -33,10 +39,9 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     flowLayout.minimumLineSpacing = space
     flowLayout.itemSize = CGSize(width: dimension, height: dimension)
 
-    getDefaultPics()
+    (pics, resultsPageNumber) = PhotoRequest.getPics() as! ([UIImage], Int?) as! ([UIImage], Int)
 
     displayMapPin()
-
   }
 
   func getDefaultPics() {
