@@ -9,7 +9,7 @@
 import UIKit
 import MapKit
 
-class PhotoAlbumViewController: UICollectionViewController {
+class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
   @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
   @IBOutlet weak var mapView: MKMapView!
@@ -20,6 +20,7 @@ class PhotoAlbumViewController: UICollectionViewController {
   private let reusePhotoCellIdentifier = "PhotoCollectionViewCell"
 
   var pics: [UIImage] = [UIImage]()
+  var mapAnnotation: MKPointAnnotation?
 
   override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,6 +34,9 @@ class PhotoAlbumViewController: UICollectionViewController {
     flowLayout.itemSize = CGSize(width: dimension, height: dimension)
 
     getDefaultPics()
+
+    displayMapPin()
+
   }
 
   func getDefaultPics() {
@@ -40,6 +44,16 @@ class PhotoAlbumViewController: UICollectionViewController {
       if let image = UIImage(named: "Placeholder2") {
         pics.append(image)
       }
+    }
+  }
+
+  func displayMapPin() {
+    if let annotation = mapAnnotation {
+      mapView.addAnnotations([annotation])
+
+      mapView.centerCoordinate = annotation.coordinate
+      mapView.region = MKCoordinateRegion(center: annotation.coordinate,
+                                          span: MKCoordinateSpan(latitudeDelta: 0.015, longitudeDelta: 0.015))
     }
   }
 
@@ -52,6 +66,24 @@ class PhotoAlbumViewController: UICollectionViewController {
         // Pass the selected object to the new view controller.
     }
     */
+
+  // MARK: MKMapViewDelegate
+  func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+
+    let reuseId = "pin"
+
+    var pinView = mapView.dequeueReusableAnnotationView(withIdentifier: reuseId) as? MKPinAnnotationView
+
+    if pinView == nil {
+      pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseId)
+      pinView!.pinTintColor = .red
+    }
+    else {
+      pinView!.annotation = annotation
+    }
+
+    return pinView
+  }
 
   // MARK: UICollectionViewDataSource
   override func numberOfSections(in collectionView: UICollectionView) -> Int {

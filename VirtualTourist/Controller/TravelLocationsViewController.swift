@@ -29,6 +29,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
 
   var appDelegate: AppDelegate!
   var managedContext: NSManagedObjectContext!
+  var selectedAnnotation: MKPointAnnotation?
 
   @IBAction func dropPin(_ gestureRecognizer: UILongPressGestureRecognizer) {
     //sender.minimumPressDuration
@@ -204,14 +205,16 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
 
     mapView.deselectAnnotation(view.annotation, animated: true)
 
+    guard let annotation = view.annotation else {
+      return
+    }
+
     if inEditPinsMode {
-      if let annotation = view.annotation {
-        deletePin(annotation: annotation)
-      } else {
-        print("in edit pin mode but cannot grab the pin!")
-      }
+      deletePin(annotation: annotation)
+      print("in edit pin mode but cannot grab the pin!")
     } else {
     // segue into next viewcontroller here
+      selectedAnnotation = annotation as? MKPointAnnotation
       performSegue(withIdentifier: "photoAlbumSegue", sender: self)
     }
   }
@@ -219,6 +222,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     if segue.identifier == "photoAlbumSegue" {
       let controller = segue.destination as! PhotoAlbumViewController
+      controller.mapAnnotation = selectedAnnotation
       print("I'm going to the photo album!")
     }
   }
