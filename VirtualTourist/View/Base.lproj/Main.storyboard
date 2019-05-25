@@ -158,6 +158,7 @@
                         <viewLayoutGuide key="safeArea" id="bve-sc-d1w"/>
                     </view>
                     <connections>
+                        <outlet property="collectionEditButton" destination="nZR-UY-2m3" id="AdM-xK-TfX"/>
                         <outlet property="flowLayout" destination="XGD-to-DNi" id="Sd0-va-tpN"/>
                         <outlet property="mapView" destination="Kpa-9h-MNe" id="nlR-uV-TR7"/>
                         <outlet property="photoCollectionView" destination="ExH-u8-eJF" id="S5Z-1B-qb8"/>

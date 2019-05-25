@@ -10,16 +10,36 @@ import UIKit
 import MapKit
 
 class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
-
+  
+  @IBOutlet weak var collectionEditButton: UIButton!
   @IBOutlet weak var photoCollectionView: UICollectionView!
   @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
   @IBOutlet weak var mapView: MKMapView!
 
   @IBAction func getNewCollection(_ sender: Any) {
-    let currentNumber = resultsPageNumber
+    if picSelectionMode {
+      print("we're in pic selection mode, yo!")
+      print("Indices of pics to remove, BEFORE: \(indicesOfPicsToRemove)")
 
-    (pics, resultsPageNumber) = PhotoRequest.getPics(currentNumber) as! ([UIImage], Int?) as! ([UIImage], Int)
-    photoCollectionView.reloadData()
+      // here is where we remove the pictures from the collection view
+      // somehow, keep track of the indices of the pictures we need to remove from
+      // the collection view, so we can remove them easily
+      replacePics()
+
+      collectionEditButton.setTitle("New Collection", for: .normal)
+      // deselect all pictures
+
+
+      picSelectionMode = false
+      indicesOfPicsToRemove = []
+      indexPathsOfPicsToRemove = []
+      print("Indices of pics to remove, AFTER: \(indicesOfPicsToRemove)")
+    } else {
+      let currentNumber = resultsPageNumber
+
+      (pics, resultsPageNumber) = PhotoRequest.getPics(currentNumber) as! ([UIImage], Int)
+      photoCollectionView.reloadData()
+    }
   }
 
   private let reusePhotoCellIdentifier = "PhotoCollectionViewCell"
@@ -27,6 +47,9 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   var resultsPageNumber: Int = 0
   var pics = [UIImage]()
   var mapAnnotation: MKPointAnnotation?
+  var picSelectionMode = false
+  var indicesOfPicsToRemove = [Int]()
+  var indexPathsOfPicsToRemove = [IndexPath]()
 
   override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,9 +62,26 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     flowLayout.minimumLineSpacing = space
     flowLayout.itemSize = CGSize(width: dimension, height: dimension)
 
-    (pics, resultsPageNumber) = PhotoRequest.getPics() as! ([UIImage], Int?) as! ([UIImage], Int)
+    (pics, resultsPageNumber) = PhotoRequest.getPics() as! ([UIImage], Int)
 
     displayMapPin()
+  }
+
+  func replacePics() {
+    for index in indicesOfPicsToRemove {
+      pics.remove(at: index)
+    }
+
+    for indexPath in indexPathsOfPicsToRemove {
+      let cell = photoCollectionView.cellForItem(at: indexPath) as! PhotoCollectionViewCell
+      cell.backgroundColor = .none
+    }
+
+    let numPicsToReplace = indexPathsOfPicsToRemove.count
+    let (picsToReplace, resultsPageNum) = PhotoRequest.getPics(resultsPageNumber, numPicsToReplace)
+    resultsPageNumber = resultsPageNum!
+    pics.append(contentsOf: picsToReplace!)
+    photoCollectionView.reloadData()
   }
 
   func getDefaultPics() {
@@ -107,5 +147,28 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     return cell
   }
 
+  override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    print("I selected a pic")
+
+    let cell = collectionView.cellForItem(at: indexPath) as! PhotoCollectionViewCell
+    // highlight the item
+    //cell.photoImageView.backgroundColor = .lightGray
+    cell.backgroundColor = .lightGray
+    indicesOfPicsToRemove.append(indexPath.row)
+    indexPathsOfPicsToRemove.append(indexPath)
+
+    // if in edit mode
+    collectionEditButton.setTitle("Remove Selected Pictures", for: .normal)
+    picSelectionMode = true
+  }
+
+  /*
+  override func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+    print("I deselected a pic")
+    let cell = collectionView.cellForItem(at: indexPath) as! PhotoCollectionViewCell
+    //cell.photoImageView.backgroundColor = .none
+    cell.backgroundColor = .none
+  }
+ */
 
 }

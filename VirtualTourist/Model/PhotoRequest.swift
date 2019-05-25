@@ -10,7 +10,7 @@ import UIKit
 
 class PhotoRequest {
 
-  static func getPics(_ resultsPageNumber: Int = 0) -> ([UIImage]?, Int?) {
+  static func getPics(_ resultsPageNumber: Int = 0, _ numPics: Int = 12) -> ([UIImage]?, Int?) {
     var pics = [UIImage]()
     var imageName: String = "Placeholder"
     var imageNumber: Int
@@ -29,7 +29,7 @@ class PhotoRequest {
     }
 
     imageName += String(imageNumber)
-    for _ in 0...11 {
+    for _ in 1...numPics {
       if let image = UIImage(named: imageName) {
         pics.append(image)
       }
