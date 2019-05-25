@@ -22,16 +22,13 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       print("Indices of pics to remove, BEFORE: \(indexPathsOfPicsToRemove)")
 
       // here is where we remove the pictures from the collection view
-      // somehow, keep track of the indices of the pictures we need to remove from
+      // we've kept track of the indices of the pictures we need to remove from
       // the collection view, so we can remove them easily
       replacePics()
 
       collectionEditButton.setTitle("New Collection", for: .normal)
-      // deselect all pictures
-
 
       picSelectionMode = false
-      //indicesOfPicsToRemove = []
       indexPathsOfPicsToRemove = []
       print("Indices of pics to remove, AFTER: \(indexPathsOfPicsToRemove)")
     } else {
@@ -48,13 +45,12 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   var pics = [UIImage]()
   var mapAnnotation: MKPointAnnotation?
   var picSelectionMode = false
-  //var indicesOfPicsToRemove = [Int]()
   var indexPathsOfPicsToRemove = [IndexPath]()
 
   override func viewDidLoad() {
-        super.viewDidLoad()
+    super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+    // Do any additional setup after loading the view.
     let space:CGFloat = 3.0
     let dimension = (view.frame.size.width - (2 * space)) / 3.0
 
@@ -70,13 +66,14 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   func replacePics() {
     let numPicsToReplace = indexPathsOfPicsToRemove.count
 
-
     // I have to do this weird thing where I sort and reverse the indexPaths to fix a bug
     // I was getting as pictures were being deleted
     // see stackoverflow below for explanation:
     // https://stackoverflow.com/a/42432585
     for indexPath in indexPathsOfPicsToRemove.sorted().reversed() {
       pics.remove(at: indexPath.row)
+
+      // deselect the pictures that were removed
       let cell = photoCollectionView.cellForItem(at: indexPath) as! PhotoCollectionViewCell
       cell.backgroundColor = .none
     }
@@ -105,15 +102,15 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     }
   }
 
-    /*
-    // MARK: - Navigation
+  /*
+   // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
+   // In a storyboard-based application, you will often want to do a little preparation before navigation
+   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+   // Get the new view controller using segue.destination.
+   // Pass the selected object to the new view controller.
+   }
+   */
 
   // MARK: MKMapViewDelegate
   func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
@@ -155,23 +152,11 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
     let cell = collectionView.cellForItem(at: indexPath) as! PhotoCollectionViewCell
     // highlight the item
-    //cell.photoImageView.backgroundColor = .lightGray
     cell.backgroundColor = .lightGray
-    //indicesOfPicsToRemove.append(indexPath.row)
     indexPathsOfPicsToRemove.append(indexPath)
 
-    // if in edit mode
+    // go into edit mode
     collectionEditButton.setTitle("Remove Selected Pictures", for: .normal)
     picSelectionMode = true
   }
-
-  /*
-  override func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-    print("I deselected a pic")
-    let cell = collectionView.cellForItem(at: indexPath) as! PhotoCollectionViewCell
-    //cell.photoImageView.backgroundColor = .none
-    cell.backgroundColor = .none
-  }
- */
-
 }
