@@ -11,6 +11,7 @@ import MapKit
 
 class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   
+  @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
   @IBOutlet weak var collectionEditButton: UIButton!
   @IBOutlet weak var photoCollectionView: UICollectionView!
   @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
@@ -40,16 +41,20 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
        */
 
 
+      activityIndicator.startAnimating()
+
       // let's call flickr here
       print("downloading data from Flickr!")
       let latitude  = 40.52972239576226
       let longitude = -96.65559787790511
       FlickrClient.getPhotoList(latitude: latitude, longitude: longitude) { (flickrPhotos, error) in
         // update collection view
+
         print("returned from getPhotoList")
 
         guard let flickrPhotos = flickrPhotos else
         {
+          self.activityIndicator.stopAnimating()
           if let error = error {
             print("we got an error \(error)")
           }
@@ -60,6 +65,8 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
           return flickerPhoto.photoImage
         }))
         self.photoCollectionView.reloadData()
+
+        self.activityIndicator.stopAnimating()
       }
 
     }

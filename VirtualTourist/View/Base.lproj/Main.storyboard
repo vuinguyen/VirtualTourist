@@ -140,6 +140,9 @@
                                     <outlet property="delegate" destination="y2Z-45-agZ" id="FQ8-9a-Kse"/>
                                 </connections>
                             </collectionView>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="seI-Gr-nHR">
+                                <rect key="frame" x="188.66666666666666" y="349.66666666666669" width="37" height="37"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
@@ -147,17 +150,20 @@
                             <constraint firstItem="nZR-UY-2m3" firstAttribute="top" secondItem="ExH-u8-eJF" secondAttribute="bottom" id="Cbi-dZ-UbL"/>
                             <constraint firstItem="ExH-u8-eJF" firstAttribute="leading" secondItem="bve-sc-d1w" secondAttribute="leading" id="E4t-ZO-jod"/>
                             <constraint firstItem="ExH-u8-eJF" firstAttribute="top" secondItem="Kpa-9h-MNe" secondAttribute="bottom" id="LWR-HY-P0l"/>
+                            <constraint firstItem="seI-Gr-nHR" firstAttribute="centerY" secondItem="bEA-X6-oiJ" secondAttribute="centerY" id="LXy-cS-YYz"/>
                             <constraint firstItem="bve-sc-d1w" firstAttribute="trailing" secondItem="ExH-u8-eJF" secondAttribute="trailing" id="NDn-di-DEV"/>
                             <constraint firstItem="Kpa-9h-MNe" firstAttribute="width" secondItem="bEA-X6-oiJ" secondAttribute="height" multiplier="9:16" id="WkZ-Mu-BVU"/>
                             <constraint firstItem="Kpa-9h-MNe" firstAttribute="leading" secondItem="bve-sc-d1w" secondAttribute="leading" id="cTj-0H-kSV"/>
                             <constraint firstItem="nZR-UY-2m3" firstAttribute="leading" secondItem="bve-sc-d1w" secondAttribute="leading" id="cav-sd-vei"/>
                             <constraint firstItem="bve-sc-d1w" firstAttribute="trailing" secondItem="nZR-UY-2m3" secondAttribute="trailing" id="ekH-vv-cW9"/>
                             <constraint firstItem="bve-sc-d1w" firstAttribute="bottom" secondItem="nZR-UY-2m3" secondAttribute="bottom" id="oA3-Cs-Ogv"/>
+                            <constraint firstItem="seI-Gr-nHR" firstAttribute="centerX" secondItem="bEA-X6-oiJ" secondAttribute="centerX" id="pjl-zk-KcI"/>
                             <constraint firstItem="Kpa-9h-MNe" firstAttribute="trailing" secondItem="bve-sc-d1w" secondAttribute="trailing" id="xBE-Ja-PgZ"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="bve-sc-d1w"/>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="seI-Gr-nHR" id="qkT-M2-Gj4"/>
                         <outlet property="collectionEditButton" destination="nZR-UY-2m3" id="AdM-xK-TfX"/>
                         <outlet property="flowLayout" destination="XGD-to-DNi" id="Sd0-va-tpN"/>
                         <outlet property="mapView" destination="Kpa-9h-MNe" id="nlR-uV-TR7"/>
