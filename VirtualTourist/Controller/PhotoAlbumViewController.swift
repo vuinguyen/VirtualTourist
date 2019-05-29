@@ -32,10 +32,36 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       indexPathsOfPicsToRemove = []
       print("Indices of pics to remove, AFTER: \(indexPathsOfPicsToRemove)")
     } else {
+      /*
       let currentNumber = resultsPageNumber
 
       (pics, resultsPageNumber) = PhotoRequest.getPics(currentNumber) as! ([UIImage], Int)
       photoCollectionView.reloadData()
+       */
+
+
+      // let's call flickr here
+      print("downloading data from Flickr!")
+      let latitude  = 40.52972239576226
+      let longitude = -96.65559787790511
+      FlickrClient.getPhotoList(latitude: latitude, longitude: longitude) { (flickrPhotos, error) in
+        // update collection view
+        print("returned from getPhotoList")
+
+        guard let flickrPhotos = flickrPhotos else
+        {
+          if let error = error {
+            print("we got an error \(error)")
+          }
+          return
+        }
+        self.pics = []
+        self.pics = (flickrPhotos.compactMap({ flickerPhoto in
+          return flickerPhoto.photoImage
+        }))
+        self.photoCollectionView.reloadData()
+      }
+
     }
   }
 
