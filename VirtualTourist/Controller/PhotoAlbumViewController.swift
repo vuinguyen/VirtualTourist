@@ -20,9 +20,9 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   @IBAction func getNewCollection(_ sender: Any) {
 
     guard let latitude  = latitude,
-      let longitude = longitude else {
-        print("don't have valid coordinates here")
-        return
+          let longitude = longitude else {
+            print("don't have valid coordinates here")
+            return
     }
 
     activityIndicator.startAnimating()
@@ -31,11 +31,6 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       print("we're in pic selection mode, yo!")
       print("Indices of pics to remove, BEFORE: \(indexPathsOfPicsToRemove)")
 
-      // here is where we remove the pictures from the collection view
-      // we've kept track of the indices of the pictures we need to remove from
-      // the collection view, so we can remove them easily
-      //replacePics()
-
       FlickrClient.getPhotoList(latitude: latitude,
                                 longitude: longitude,
                                 totalNumPicsAvailable: totalNumPicsAvailable,
@@ -43,24 +38,9 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
                                 maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNumPics, error) in
                                   self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNumPics, error: error,
                                                             updateAllPics: false)
-      }
+                                }
 
-      // set everything back to original settings
-      /*
-      collectionEditButton.setTitle("New Collection", for: .normal)
-      picSelectionMode = false
-      indexPathsOfPicsToRemove = []
-      print("Indices of pics to remove, AFTER: \(indexPathsOfPicsToRemove)")
-*/
     } else {
-      /*
-      let currentNumber = resultsPageNumber
-
-      (pics, resultsPageNumber) = PhotoRequest.getPics(currentNumber) as! ([UIImage], Int)
-      photoCollectionView.reloadData()
-       */
-
-
       print("we're getting all new pics!")
 
       // let's call flickr here
@@ -74,31 +54,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
                                 updatedNumPicsToDisplay: maxPicsDisplayed,
                                 maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNumPics, error) in
                                   self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNumPics, error: error)
-                                  }
-      /*
-        // update collection view
-
-        print("returned from getPhotoList")
-
-        guard let flickrPhotos = flickrPhotos,
-              let totalNumPics = totalNumPics else
-        {
-          self.activityIndicator.stopAnimating()
-          if let error = error {
-            print("we got an error \(error)")
-          }
-          return
-        }
-        self.totalNumPicsAvailable = totalNumPics
-        self.pics = []
-        self.pics = (flickrPhotos.compactMap({ flickerPhoto in
-          return flickerPhoto.photoImage
-        }))
-        self.photoCollectionView.reloadData()
-
-        self.activityIndicator.stopAnimating()
-      }
-*/
+                                }
     }
 
   }
@@ -119,22 +75,45 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     super.viewDidLoad()
 
     // Do any additional setup after loading the view.
-    let space:CGFloat = 3.0
-    let dimension = (view.frame.size.width - (2 * space)) / 3.0
-
-    flowLayout.minimumInteritemSpacing = space
-    flowLayout.minimumLineSpacing = space
-    flowLayout.itemSize = CGSize(width: dimension, height: dimension)
-
-    (pics, resultsPageNumber) = PhotoRequest.getPics() as! ([UIImage], Int)
-
     if let mapAnnotation = mapAnnotation {
       latitude  = mapAnnotation.coordinate.latitude
       longitude = mapAnnotation.coordinate.longitude
     }
+
     displayMapPin()
+
+    // collection view setup
+    let space:CGFloat = 3.0
+    let dimension = (view.frame.size.width - (2 * space)) / 3.0
+    flowLayout.minimumInteritemSpacing = space
+    flowLayout.minimumLineSpacing = space
+    flowLayout.itemSize = CGSize(width: dimension, height: dimension)
+
+    getDefaultPics()
+    //(pics, resultsPageNumber) = PhotoRequest.getPics() as! ([UIImage], Int)
   }
 
+
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    guard let latitude  = latitude,
+      let longitude = longitude else {
+        print("don't have valid coordinates here")
+        return
+    }
+
+    activityIndicator.startAnimating()
+
+    FlickrClient.getPhotoList(latitude: latitude,
+                              longitude: longitude,
+                              totalNumPicsAvailable: totalNumPicsAvailable,
+                              updatedNumPicsToDisplay: maxPicsDisplayed,
+                              maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNumPics, error) in
+                                self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNumPics, error: error)
+    }
+  }
+  /*
+   // Function: OBE
   func replacePics() {
     let numPicsToReplace = indexPathsOfPicsToRemove.count
 
@@ -155,13 +134,15 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     pics.append(contentsOf: picsToReplace)
     photoCollectionView.reloadData()
   }
+ */
 
   func getDefaultPics() {
-    for _ in 0...11 {
-      if let image = UIImage(named: "Placeholder2") {
+    for _ in 0..<maxPicsDisplayed {
+      if let image = UIImage(named: "Placeholder1") {
         pics.append(image)
       }
     }
+    photoCollectionView.reloadData()
   }
 
   func updateCollectionView(flickrPhotos: [FlickrPhoto]?, totalNumPics: Int?, error: Error?, updateAllPics: Bool = true) {
