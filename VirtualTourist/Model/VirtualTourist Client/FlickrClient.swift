@@ -15,10 +15,10 @@ class FlickrClient {
     case generic
   }
 
-  class func getPhotoList(latitude: Double, longitude: Double, completion: @escaping ([FlickrPhoto]?, Error?) -> Void) {
+  class func getPhotoList(latitude: Double, longitude: Double, _ pageNum: Int = 1, completion: @escaping ([FlickrPhoto]?, Error?) -> Void) {
     let radius = 20
     let perPage = 20
-    let pageNum = 2
+    let pageNum = pageNum
     let searchURLString = "https://www.flickr.com/services/rest/?method=flickr.photos.search" +
       "&api_key=\(APIKeys.ApplicationID)" +
       "&lat=\(latitude)" +

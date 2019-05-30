@@ -45,9 +45,16 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
       // let's call flickr here
       print("downloading data from Flickr!")
-      let latitude  = 40.52972239576226
-      let longitude = -96.65559787790511
-      FlickrClient.getPhotoList(latitude: latitude, longitude: longitude) { (flickrPhotos, error) in
+      //let latitude  = 40.52972239576226
+      //let longitude = -96.65559787790511
+
+      guard let latitude  = mapAnnotation?.coordinate.latitude,
+            let longitude = mapAnnotation?.coordinate.longitude else {
+        print("don't have valid coordinates here")
+        return
+      }
+
+      FlickrClient.getPhotoList(latitude: mapAnnotation?.coordinate.latitude ?? latitude, longitude: mapAnnotation?.coordinate.longitude ?? longitude) { (flickrPhotos, error) in
         // update collection view
 
         print("returned from getPhotoList")
