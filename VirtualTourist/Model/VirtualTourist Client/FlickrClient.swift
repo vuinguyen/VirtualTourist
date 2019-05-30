@@ -15,25 +15,30 @@ class FlickrClient {
     case generic
   }
 
-  class func getRandomPageNum(totalPicsAvailable: Int, numPicsDisplayed: Int) -> Int {
-    let numPages = totalPicsAvailable / numPicsDisplayed
+  class func getRandomPageNum(totalPicsAvailable: Int, maxNumPicsDisplayed: Int) -> Int {
+    let numPages = totalPicsAvailable / maxNumPicsDisplayed
     let randomPageNum = Int.random(in: 1...numPages)
+    print("totalPicsAvailable is \(totalPicsAvailable)")
+    print("numPages is \(numPages)")
     print("randomPageNum is \(randomPageNum)")
     return randomPageNum
   }
 
   class func getPhotoList(latitude: Double, longitude: Double,
-                          totalNumPicsAvailable: Int = 0, numPicsDisplayed: Int = 12,
+                          totalNumPicsAvailable: Int = 0,
+                          updatedNumPicsToDisplay: Int = 12,
+                          maxNumPicsDisplayed: Int = 12,
                           completion: @escaping ([FlickrPhoto]?, Int?, Error?) -> Void) {
 
     // let's calculate how many pages we could get, and randomly
     // select a pageNum
     // we definitely want to save off the new totalNumPics we get for next time
     let pageNum = totalNumPicsAvailable > 0 ?
-      getRandomPageNum(totalPicsAvailable: totalNumPicsAvailable, numPicsDisplayed: numPicsDisplayed) : 1
+      getRandomPageNum(totalPicsAvailable: totalNumPicsAvailable, maxNumPicsDisplayed: maxNumPicsDisplayed) : 1
 
     let radius = 20
-    let perPage = numPicsDisplayed
+    let perPage = updatedNumPicsToDisplay // but we only want to download just the number of pictures we need to display
+                                          // in the updated display
     let searchURLString = "https://www.flickr.com/services/rest/?method=flickr.photos.search" +
       "&api_key=\(APIKeys.ApplicationID)" +
       "&lat=\(latitude)" +

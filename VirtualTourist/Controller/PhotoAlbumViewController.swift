@@ -18,6 +18,15 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   @IBOutlet weak var mapView: MKMapView!
 
   @IBAction func getNewCollection(_ sender: Any) {
+
+    guard let latitude  = latitude,
+      let longitude = longitude else {
+        print("don't have valid coordinates here")
+        return
+    }
+
+    activityIndicator.startAnimating()
+
     if picSelectionMode {
       print("we're in pic selection mode, yo!")
       print("Indices of pics to remove, BEFORE: \(indexPathsOfPicsToRemove)")
@@ -25,13 +34,24 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       // here is where we remove the pictures from the collection view
       // we've kept track of the indices of the pictures we need to remove from
       // the collection view, so we can remove them easily
-      replacePics()
+      //replacePics()
+
+      FlickrClient.getPhotoList(latitude: latitude,
+                                longitude: longitude,
+                                totalNumPicsAvailable: totalNumPicsAvailable,
+                                updatedNumPicsToDisplay: indexPathsOfPicsToRemove.count,
+                                maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNumPics, error) in
+                                  self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNumPics, error: error,
+                                                            updateAllPics: false)
+      }
 
       // set everything back to original settings
+      /*
       collectionEditButton.setTitle("New Collection", for: .normal)
       picSelectionMode = false
       indexPathsOfPicsToRemove = []
       print("Indices of pics to remove, AFTER: \(indexPathsOfPicsToRemove)")
+*/
     } else {
       /*
       let currentNumber = resultsPageNumber
@@ -41,23 +61,21 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
        */
 
 
-      activityIndicator.startAnimating()
+      print("we're getting all new pics!")
 
       // let's call flickr here
       print("downloading data from Flickr!")
       //let latitude  = 40.52972239576226
       //let longitude = -96.65559787790511
 
-      guard let latitude  = mapAnnotation?.coordinate.latitude,
-            let longitude = mapAnnotation?.coordinate.longitude else {
-        print("don't have valid coordinates here")
-        return
-      }
-
-      FlickrClient.getPhotoList(latitude: mapAnnotation?.coordinate.latitude ?? latitude,
-                                longitude: mapAnnotation?.coordinate.longitude ?? longitude,
+      FlickrClient.getPhotoList(latitude: latitude,
+                                longitude: longitude,
                                 totalNumPicsAvailable: totalNumPicsAvailable,
-                                numPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNumPics, error) in
+                                updatedNumPicsToDisplay: maxPicsDisplayed,
+                                maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNumPics, error) in
+                                  self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNumPics, error: error)
+                                  }
+      /*
         // update collection view
 
         print("returned from getPhotoList")
@@ -80,8 +98,9 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
         self.activityIndicator.stopAnimating()
       }
-
+*/
     }
+
   }
 
   private let reusePhotoCellIdentifier = "PhotoCollectionViewCell"
@@ -89,6 +108,8 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   var resultsPageNumber: Int = 0
   var pics = [UIImage]()
   var mapAnnotation: MKPointAnnotation?
+  var latitude: Double?
+  var longitude: Double?
   var picSelectionMode = false
   var indexPathsOfPicsToRemove = [IndexPath]()
   var totalNumPicsAvailable: Int = 0
@@ -107,6 +128,10 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
     (pics, resultsPageNumber) = PhotoRequest.getPics() as! ([UIImage], Int)
 
+    if let mapAnnotation = mapAnnotation {
+      latitude  = mapAnnotation.coordinate.latitude
+      longitude = mapAnnotation.coordinate.longitude
+    }
     displayMapPin()
   }
 
@@ -137,6 +162,56 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
         pics.append(image)
       }
     }
+  }
+
+  func updateCollectionView(flickrPhotos: [FlickrPhoto]?, totalNumPics: Int?, error: Error?, updateAllPics: Bool = true) {
+    print("returned from getPhotoList")
+
+    guard let flickrPhotos = flickrPhotos,
+      let totalNumPics = totalNumPics else
+    {
+      self.activityIndicator.stopAnimating()
+      if let error = error {
+        print("we got an error \(error)")
+      }
+      return
+    }
+
+    let images: [UIImage] = flickrPhotos.compactMap({ flickerPhoto in
+      return flickerPhoto.photoImage
+    })
+
+    self.totalNumPicsAvailable = totalNumPics
+    if updateAllPics == true {
+      self.pics = []
+      self.pics = images
+    } else {
+      // Remove old pictures from collection view first
+
+      // I have to do this weird thing where I sort and reverse the indexPaths to fix a bug
+      // I was getting as pictures were being deleted
+      // see stackoverflow below for explanation:
+      // https://stackoverflow.com/a/42432585
+      for indexPath in indexPathsOfPicsToRemove.sorted().reversed() {
+        pics.remove(at: indexPath.row)
+
+        // deselect the pictures that were removed
+        let cell = photoCollectionView.cellForItem(at: indexPath) as! PhotoCollectionViewCell
+        cell.backgroundColor = .none
+      }
+
+      pics.append(contentsOf: images)
+
+      // set everything back to original settings
+      collectionEditButton.setTitle("New Collection", for: .normal)
+      picSelectionMode = false
+      indexPathsOfPicsToRemove = []
+      print("Indices of pics to remove, AFTER: \(indexPathsOfPicsToRemove)")
+
+    }
+    self.photoCollectionView.reloadData()
+
+    self.activityIndicator.stopAnimating()
   }
 
   func displayMapPin() {
