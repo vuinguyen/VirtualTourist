@@ -27,8 +27,8 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       // the collection view, so we can remove them easily
       replacePics()
 
+      // set everything back to original settings
       collectionEditButton.setTitle("New Collection", for: .normal)
-
       picSelectionMode = false
       indexPathsOfPicsToRemove = []
       print("Indices of pics to remove, AFTER: \(indexPathsOfPicsToRemove)")
@@ -54,12 +54,16 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
         return
       }
 
-      FlickrClient.getPhotoList(latitude: mapAnnotation?.coordinate.latitude ?? latitude, longitude: mapAnnotation?.coordinate.longitude ?? longitude) { (flickrPhotos, error) in
+      FlickrClient.getPhotoList(latitude: mapAnnotation?.coordinate.latitude ?? latitude,
+                                longitude: mapAnnotation?.coordinate.longitude ?? longitude,
+                                totalNumPicsAvailable: totalNumPicsAvailable,
+                                numPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNumPics, error) in
         // update collection view
 
         print("returned from getPhotoList")
 
-        guard let flickrPhotos = flickrPhotos else
+        guard let flickrPhotos = flickrPhotos,
+              let totalNumPics = totalNumPics else
         {
           self.activityIndicator.stopAnimating()
           if let error = error {
@@ -67,6 +71,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
           }
           return
         }
+        self.totalNumPicsAvailable = totalNumPics
         self.pics = []
         self.pics = (flickrPhotos.compactMap({ flickerPhoto in
           return flickerPhoto.photoImage
@@ -86,6 +91,8 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   var mapAnnotation: MKPointAnnotation?
   var picSelectionMode = false
   var indexPathsOfPicsToRemove = [IndexPath]()
+  var totalNumPicsAvailable: Int = 0
+  let maxPicsDisplayed = 12
 
   override func viewDidLoad() {
     super.viewDidLoad()

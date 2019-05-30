@@ -15,10 +15,25 @@ class FlickrClient {
     case generic
   }
 
-  class func getPhotoList(latitude: Double, longitude: Double, _ pageNum: Int = 1, completion: @escaping ([FlickrPhoto]?, Error?) -> Void) {
+  class func getRandomPageNum(totalPicsAvailable: Int, numPicsDisplayed: Int) -> Int {
+    let numPages = totalPicsAvailable / numPicsDisplayed
+    let randomPageNum = Int.random(in: 1...numPages)
+    print("randomPageNum is \(randomPageNum)")
+    return randomPageNum
+  }
+
+  class func getPhotoList(latitude: Double, longitude: Double,
+                          totalNumPicsAvailable: Int = 0, numPicsDisplayed: Int = 12,
+                          completion: @escaping ([FlickrPhoto]?, Int?, Error?) -> Void) {
+
+    // let's calculate how many pages we could get, and randomly
+    // select a pageNum
+    // we definitely want to save off the new totalNumPics we get for next time
+    let pageNum = totalNumPicsAvailable > 0 ?
+      getRandomPageNum(totalPicsAvailable: totalNumPicsAvailable, numPicsDisplayed: numPicsDisplayed) : 1
+
     let radius = 20
-    let perPage = 20
-    let pageNum = pageNum
+    let perPage = numPicsDisplayed
     let searchURLString = "https://www.flickr.com/services/rest/?method=flickr.photos.search" +
       "&api_key=\(APIKeys.ApplicationID)" +
       "&lat=\(latitude)" +
@@ -59,8 +74,7 @@ class FlickrClient {
           let stat = resultsDictionary["stat"] as? String
           else {
             DispatchQueue.main.async {
-              //completion(Result.error(Error.unknownAPIResponse))
-              completion(nil, Error.unknownAPIResponse)
+              completion(nil, nil, Error.unknownAPIResponse)
               print("error in getting data")
 
             }
@@ -75,24 +89,25 @@ class FlickrClient {
         case "fail":
           DispatchQueue.main.async {
             print("error in parsing stat")
-            completion(nil, (Error.generic))
+            completion(nil, nil, Error.generic)
           }
           return
         default:
           DispatchQueue.main.async {
             print("error in parsing stat, in default")
-            completion(nil, (Error.unknownAPIResponse))
+            completion(nil, nil, Error.unknownAPIResponse)
           }
           return
         }
 
         guard
           let photosContainer = resultsDictionary["photos"] as? [String: AnyObject],
-          let photosReceived = photosContainer["photo"] as? [[String: AnyObject]]
+          let photosReceived = photosContainer["photo"] as? [[String: AnyObject]],
+          let updatedTotalNumPics:Int = Int((photosContainer["total"] as? String)!)
           else {
             DispatchQueue.main.async {
               print("photos not in proper format")
-              completion(nil, (Error.unknownAPIResponse))
+              completion(nil, nil, Error.unknownAPIResponse)
             }
             return
         }
@@ -100,8 +115,8 @@ class FlickrClient {
         let flickrPhotos: [FlickrPhoto] = photosReceived.compactMap { photoObject in
           guard
             let photoID = photoObject["id"] as? String,
-            let farm = photoObject["farm"] as? Int ,
-            let server = photoObject["server"] as? String ,
+            let farm = photoObject["farm"] as? Int,
+            let server = photoObject["server"] as? String,
             let secret = photoObject["secret"] as? String
             else {
               return nil
@@ -128,7 +143,7 @@ class FlickrClient {
 
         DispatchQueue.main.async {
           print("successfully downloaded pics!")
-          completion(flickrPhotos, nil)
+          completion(flickrPhotos, updatedTotalNumPics, nil)
         }
 
       } catch {
