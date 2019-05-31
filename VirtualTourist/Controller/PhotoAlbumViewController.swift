@@ -8,6 +8,7 @@
 
 import UIKit
 import MapKit
+import CoreData
 
 class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   
@@ -71,10 +72,17 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   var totalNumPicsAvailable: Int = 0
   let maxPicsDisplayed = 12
 
+  var appDelegate: AppDelegate!
+  var managedContext: NSManagedObjectContext!
+  
   override func viewDidLoad() {
     super.viewDidLoad()
 
     // Do any additional setup after loading the view.
+
+    appDelegate = UIApplication.shared.delegate as? AppDelegate
+    managedContext = appDelegate.persistentContainer.viewContext
+
     if let mapAnnotation = mapAnnotation {
       latitude  = mapAnnotation.coordinate.latitude
       longitude = mapAnnotation.coordinate.longitude
@@ -94,8 +102,8 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   }
 
 
-  override func viewDidAppear(_ animated: Bool) {
-    super.viewDidAppear(animated)
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
     guard let latitude  = latitude,
       let longitude = longitude else {
         print("don't have valid coordinates here")
@@ -104,13 +112,36 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
     activityIndicator.startAnimating()
 
-    FlickrClient.getPhotoList(latitude: latitude,
-                              longitude: longitude,
-                              totalNumPicsAvailable: totalNumPicsAvailable,
-                              updatedNumPicsToDisplay: maxPicsDisplayed,
-                              maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNumPics, error) in
-                                self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNumPics, error: error)
+    // check to see if we have any photos persisted, if not, let's get them!
+
+    do {
+      let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Photo")
+      let photos = try managedContext.fetch(fetchRequest)
+      if photos.count > 0 {
+        pics = []
+        for photo in photos {
+          if let image = photo.value(forKey: "image") as? UIImage {
+            pics.append(image)
+          }
+        }
+        DispatchQueue.main.async {
+          print("displaying photos from Core Data!")
+          self.photoCollectionView.reloadData()
+          self.activityIndicator.stopAnimating()
+        }
+      } else {
+        FlickrClient.getPhotoList(latitude: latitude,
+                                  longitude: longitude,
+                                  totalNumPicsAvailable: totalNumPicsAvailable,
+                                  updatedNumPicsToDisplay: maxPicsDisplayed,
+                                  maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNumPics, error) in
+                                    self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNumPics, error: error)
+        }
+      }
+    } catch let error as NSError {
+      print("Could not fetch data for photos. \(error), \(error.userInfo)")
     }
+
   }
   /*
    // Function: OBE
