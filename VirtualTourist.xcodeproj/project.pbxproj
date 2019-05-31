@@ -97,7 +97,6 @@
 				526040CB2276228D009ADBF7 /* AppDelegate.swift */,
 				526040D52276228E009ADBF7 /* Assets.xcassets */,
 				526040DA2276228E009ADBF7 /* Info.plist */,
-				526040D22276228D009ADBF7 /* VirtualTourist.xcdatamodeld */,
 			);
 			path = VirtualTourist;
 			sourceTree = "<group>";
@@ -146,6 +145,7 @@
 		52FC55CC229B3E8900A44904 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				526040D22276228D009ADBF7 /* VirtualTourist.xcdatamodeld */,
 				52FC55D8229F492D00A44904 /* FlckrPhoto.swift */,
 			);
 			path = Data;
