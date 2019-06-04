@@ -48,7 +48,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       print("downloading data from Flickr!")
       //let latitude  = 40.52972239576226
       //let longitude = -96.65559787790511
-
+/*
       FlickrClient.getPhotoList(latitude: latitude,
                                 longitude: longitude,
                                 totalNumPicsAvailable: totalNumPicsAvailable,
@@ -56,6 +56,12 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
                                 maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNumPics, error) in
                                   self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNumPics, error: error)
       }
+*/
+      FlickrClient.getFlickrPhotos(latitude: latitude, longitude: longitude) { (flickrPhotos, totalNums, error) in
+        self.updateCollectionView2(flickrPhotos: flickrPhotos, totalNumPics: totalNums, error: error)
+
+      }
+
     }
 
   }
@@ -142,7 +148,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
          }
          */
         FlickrClient.getFlickrPhotos(latitude: latitude, longitude: longitude) { (flickrPhotos, totalNums, error) in
-
+/*
           guard let flickrPhotos = flickrPhotos,
             let totalNumPics = totalNums else
           {
@@ -158,7 +164,8 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
           self.photoCollectionView.reloadData()
           self.activityIndicator.stopAnimating()
-
+*/
+          self.updateCollectionView2(flickrPhotos: flickrPhotos, totalNumPics: totalNums, error: error)
         } // end gotPhotoList
       } // end else
     } // end do
@@ -199,6 +206,26 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       }
     }
     photoCollectionView.reloadData()
+  }
+
+  func updateCollectionView2(flickrPhotos: [FlickrPhoto]?, totalNumPics: Int?, error: Error?, updateAllPics: Bool = true) {
+
+    guard let flickrPhotos = flickrPhotos,
+      let totalNumPics = totalNumPics else
+    {
+      self.activityIndicator.stopAnimating()
+      if let error = error {
+        print("we got an error \(error)")
+      }
+      return
+    }
+
+    self.flickrPhotos = flickrPhotos
+    self.totalNumPicsAvailable = totalNumPics
+
+    self.photoCollectionView.reloadData()
+    self.activityIndicator.stopAnimating()
+
   }
 
   func updateCollectionView(flickrPhotos: [FlickrPhoto]?, totalNumPics: Int?, error: Error?, updateAllPics: Bool = true) {
@@ -318,7 +345,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     // else download the image from flickr
 
     cell.photoImageView.image = UIImage(named: "Placeholder1")
-    
+
     let flickrPhoto = self.flickrPhotos[(indexPath as NSIndexPath).row]
     if let image = flickrPhoto.photoImage {
       cell.photoImageView.image = image
