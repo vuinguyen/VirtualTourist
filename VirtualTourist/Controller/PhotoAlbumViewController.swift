@@ -21,9 +21,9 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   @IBAction func getNewCollection(_ sender: Any) {
 
     guard let latitude  = latitude,
-          let longitude = longitude else {
-            print("don't have valid coordinates here")
-            return
+      let longitude = longitude else {
+        print("don't have valid coordinates here")
+        return
     }
 
     activityIndicator.startAnimating()
@@ -39,7 +39,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
                                 maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNumPics, error) in
                                   self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNumPics, error: error,
                                                             updateAllPics: false)
-                                }
+      }
 
     } else {
       print("we're getting all new pics!")
@@ -55,7 +55,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
                                 updatedNumPicsToDisplay: maxPicsDisplayed,
                                 maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNumPics, error) in
                                   self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNumPics, error: error)
-                                }
+      }
     }
 
   }
@@ -71,6 +71,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   var indexPathsOfPicsToRemove = [IndexPath]()
   var totalNumPicsAvailable: Int = 0
   let maxPicsDisplayed = 12
+  var flickrPhotos = [FlickrPhoto]()
 
   var appDelegate: AppDelegate!
   var managedContext: NSManagedObjectContext!
@@ -130,42 +131,66 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
           self.activityIndicator.stopAnimating()
         }
       } else {
-        FlickrClient.getPhotoList(latitude: latitude,
-                                  longitude: longitude,
-                                  totalNumPicsAvailable: totalNumPicsAvailable,
-                                  updatedNumPicsToDisplay: maxPicsDisplayed,
-                                  maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNumPics, error) in
-                                    self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNumPics, error: error)
-        }
-      }
-    } catch let error as NSError {
+
+        /*
+         FlickrClient.getPhotoList(latitude: latitude,
+         longitude: longitude,
+         totalNumPicsAvailable: totalNumPicsAvailable,
+         updatedNumPicsToDisplay: maxPicsDisplayed,
+         maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNumPics, error) in
+         self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNumPics, error: error)
+         }
+         */
+        FlickrClient.getFlickrPhotos(latitude: latitude, longitude: longitude) { (flickrPhotos, totalNums, error) in
+
+          guard let flickrPhotos = flickrPhotos,
+            let totalNumPics = totalNums else
+          {
+            self.activityIndicator.stopAnimating()
+            if let error = error {
+              print("we got an error \(error)")
+            }
+            return
+          }
+
+          self.flickrPhotos = flickrPhotos
+          self.totalNumPicsAvailable = totalNumPics
+
+          self.photoCollectionView.reloadData()
+          self.activityIndicator.stopAnimating()
+
+        } // end gotPhotoList
+      } // end else
+    } // end do
+
+    catch let error as NSError {
       print("Could not fetch data for photos. \(error), \(error.userInfo)")
     }
 
   }
   /*
    // Function: OBE
-  func replacePics() {
-    let numPicsToReplace = indexPathsOfPicsToRemove.count
+   func replacePics() {
+   let numPicsToReplace = indexPathsOfPicsToRemove.count
 
-    // I have to do this weird thing where I sort and reverse the indexPaths to fix a bug
-    // I was getting as pictures were being deleted
-    // see stackoverflow below for explanation:
-    // https://stackoverflow.com/a/42432585
-    for indexPath in indexPathsOfPicsToRemove.sorted().reversed() {
-      pics.remove(at: indexPath.row)
+   // I have to do this weird thing where I sort and reverse the indexPaths to fix a bug
+   // I was getting as pictures were being deleted
+   // see stackoverflow below for explanation:
+   // https://stackoverflow.com/a/42432585
+   for indexPath in indexPathsOfPicsToRemove.sorted().reversed() {
+   pics.remove(at: indexPath.row)
 
-      // deselect the pictures that were removed
-      let cell = photoCollectionView.cellForItem(at: indexPath) as! PhotoCollectionViewCell
-      cell.backgroundColor = .none
-    }
+   // deselect the pictures that were removed
+   let cell = photoCollectionView.cellForItem(at: indexPath) as! PhotoCollectionViewCell
+   cell.backgroundColor = .none
+   }
 
-    let (picsToReplace, resultsPageNum) = PhotoRequest.getPics(resultsPageNumber, numPicsToReplace) as! ([UIImage], Int)
-    resultsPageNumber = resultsPageNum
-    pics.append(contentsOf: picsToReplace)
-    photoCollectionView.reloadData()
-  }
- */
+   let (picsToReplace, resultsPageNum) = PhotoRequest.getPics(resultsPageNumber, numPicsToReplace) as! ([UIImage], Int)
+   resultsPageNumber = resultsPageNum
+   pics.append(contentsOf: picsToReplace)
+   photoCollectionView.reloadData()
+   }
+   */
 
   func getDefaultPics() {
     for _ in 0..<maxPicsDisplayed {
@@ -226,6 +251,14 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     self.activityIndicator.stopAnimating()
   }
 
+  func addPhoto() {
+
+  }
+
+  func removePhoto() {
+
+  }
+  
   func displayMapPin() {
     if let annotation = mapAnnotation {
       mapView.addAnnotations([annotation])
@@ -270,14 +303,35 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   }
 
   override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-    return pics.count
+    //return pics.count
+    return flickrPhotos.count
   }
 
   override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reusePhotoCellIdentifier, for: indexPath) as! PhotoCollectionViewCell
-    let pic = self.pics[(indexPath as NSIndexPath).row]
+    //let pic = self.pics[(indexPath as NSIndexPath).row]
 
-    cell.photoImageView.image = pic
+   // cell.photoImageView.image = pic
+
+    // first, we'll put a placeholder here
+    // then, we'll check to see if FlickerPhoto.photoImage exists, display that
+    // else download the image from flickr
+
+    cell.photoImageView.image = UIImage(named: "Placeholder1")
+    
+    let flickrPhoto = self.flickrPhotos[(indexPath as NSIndexPath).row]
+    if let image = flickrPhoto.photoImage {
+      cell.photoImageView.image = image
+    } else {
+      FlickrClient.downloadImage(imageURL: flickrPhoto.flickrImageURL()) { (data, error) in
+        guard let data = data else {
+          return
+        }
+        let image = UIImage(data: data)
+        cell.photoImageView.image = image
+      }
+    }
+  
     return cell
   }
 
