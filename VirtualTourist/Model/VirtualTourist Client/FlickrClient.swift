@@ -10,10 +10,20 @@ import UIKit
 
 class FlickrClient {
 
+
   enum Error: Swift.Error {
     case unknownAPIResponse
     case generic
   }
+
+
+  /*
+  extension FlickrClient: LocalizedError {
+    var errorDescription: String? {
+      return statusMessage
+    }
+  }
+ */
 
   class func getRandomPageNum(totalPicsAvailable: Int, maxNumPicsDisplayed: Int) -> Int {
     let numPages = totalPicsAvailable / maxNumPicsDisplayed
@@ -55,6 +65,7 @@ class FlickrClient {
     let task = URLSession.shared.dataTask(with: searchRequest) { (data, response, error) in
       if let error = error {
         print("there is an error!: \(error)")
+        completion(nil, nil, Error.generic)
         return
       }
 

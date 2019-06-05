@@ -115,8 +115,6 @@
 			children = (
 				52FC55CC229B3E8900A44904 /* Data */,
 				52FC55CD229B3E9300A44904 /* VirtualTourist Client */,
-				52FC55CE229B3EA600A44904 /* VirtualTourist Requests */,
-				52FC55CF229B3EB300A44904 /* VirtualTourist Responses */,
 				52DDF64722977BC4006665E9 /* PhotoRequest.swift */,
 				52FC55D0229B3F0F00A44904 /* APIKeys.swift */,
 			);
@@ -157,20 +155,6 @@
 				52FC55D2229B4C5300A44904 /* FlickrClient.swift */,
 			);
 			path = "VirtualTourist Client";
-			sourceTree = "<group>";
-		};
-		52FC55CE229B3EA600A44904 /* VirtualTourist Requests */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "VirtualTourist Requests";
-			sourceTree = "<group>";
-		};
-		52FC55CF229B3EB300A44904 /* VirtualTourist Responses */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "VirtualTourist Responses";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

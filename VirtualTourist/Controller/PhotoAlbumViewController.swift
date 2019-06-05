@@ -32,6 +32,14 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       print("we're in pic selection mode, yo!")
       print("Indices of pics to remove, BEFORE: \(indexPathsOfPicsToRemove)")
 
+      FlickrClient.getFlickrPhotos(latitude: latitude,
+                                   longitude: longitude,
+                                   totalNumPicsAvailable: totalNumPicsAvailable,
+                                   updatedNumPicsToDisplay: indexPathsOfPicsToRemove.count,
+                                   maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNums, error) in
+                                    self.updateCollectionView2(flickrPhotos: flickrPhotos, totalNumPics: totalNums, error: error, updateAllPics: false)
+
+        /*
       FlickrClient.getPhotoList(latitude: latitude,
                                 longitude: longitude,
                                 totalNumPicsAvailable: totalNumPicsAvailable,
@@ -39,6 +47,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
                                 maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNumPics, error) in
                                   self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNumPics, error: error,
                                                             updateAllPics: false)
+ */
       }
 
     } else {
@@ -57,8 +66,12 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
                                   self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNumPics, error: error)
       }
 */
-      FlickrClient.getFlickrPhotos(latitude: latitude, longitude: longitude) { (flickrPhotos, totalNums, error) in
-        self.updateCollectionView2(flickrPhotos: flickrPhotos, totalNumPics: totalNums, error: error)
+      FlickrClient.getFlickrPhotos(latitude: latitude,
+                                   longitude: longitude,
+                                   totalNumPicsAvailable: totalNumPicsAvailable,
+                                   updatedNumPicsToDisplay: maxPicsDisplayed,
+                                   maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNums, error) in
+                                    self.updateCollectionView2(flickrPhotos: flickrPhotos, totalNumPics: totalNums, error: error)
 
       }
 
@@ -75,6 +88,9 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   var longitude: Double?
   var picSelectionMode = false
   var indexPathsOfPicsToRemove = [IndexPath]()
+
+  // total number of pics available on Flickr for this latitude and longitude
+
   var totalNumPicsAvailable: Int = 0
   let maxPicsDisplayed = 12
   var flickrPhotos = [FlickrPhoto]()
@@ -105,7 +121,6 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     flowLayout.itemSize = CGSize(width: dimension, height: dimension)
 
     getDefaultPics()
-    //(pics, resultsPageNumber) = PhotoRequest.getPics() as! ([UIImage], Int)
   }
 
 
@@ -147,24 +162,11 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
          self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNumPics, error: error)
          }
          */
-        FlickrClient.getFlickrPhotos(latitude: latitude, longitude: longitude) { (flickrPhotos, totalNums, error) in
-/*
-          guard let flickrPhotos = flickrPhotos,
-            let totalNumPics = totalNums else
-          {
-            self.activityIndicator.stopAnimating()
-            if let error = error {
-              print("we got an error \(error)")
-            }
-            return
-          }
-
-          self.flickrPhotos = flickrPhotos
-          self.totalNumPicsAvailable = totalNumPics
-
-          self.photoCollectionView.reloadData()
-          self.activityIndicator.stopAnimating()
-*/
+        FlickrClient.getFlickrPhotos(latitude: latitude,
+                                     longitude: longitude,
+                                     totalNumPicsAvailable: totalNumPicsAvailable,
+                                     updatedNumPicsToDisplay: maxPicsDisplayed,
+                                     maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNums, error) in
           self.updateCollectionView2(flickrPhotos: flickrPhotos, totalNumPics: totalNums, error: error)
         } // end gotPhotoList
       } // end else
@@ -175,29 +177,6 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     }
 
   }
-  /*
-   // Function: OBE
-   func replacePics() {
-   let numPicsToReplace = indexPathsOfPicsToRemove.count
-
-   // I have to do this weird thing where I sort and reverse the indexPaths to fix a bug
-   // I was getting as pictures were being deleted
-   // see stackoverflow below for explanation:
-   // https://stackoverflow.com/a/42432585
-   for indexPath in indexPathsOfPicsToRemove.sorted().reversed() {
-   pics.remove(at: indexPath.row)
-
-   // deselect the pictures that were removed
-   let cell = photoCollectionView.cellForItem(at: indexPath) as! PhotoCollectionViewCell
-   cell.backgroundColor = .none
-   }
-
-   let (picsToReplace, resultsPageNum) = PhotoRequest.getPics(resultsPageNumber, numPicsToReplace) as! ([UIImage], Int)
-   resultsPageNumber = resultsPageNum
-   pics.append(contentsOf: picsToReplace)
-   photoCollectionView.reloadData()
-   }
-   */
 
   func getDefaultPics() {
     for _ in 0..<maxPicsDisplayed {
@@ -220,8 +199,35 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       return
     }
 
-    self.flickrPhotos = flickrPhotos
+    // keep the total number of pics available for location current
     self.totalNumPicsAvailable = totalNumPics
+
+    if updateAllPics == true {
+      self.flickrPhotos = []
+      self.flickrPhotos = flickrPhotos
+    } else {
+      // Remove old pictures from collection view first
+
+      // I have to do this weird thing where I sort and reverse the indexPaths to fix a bug
+      // I was getting as pictures were being deleted
+      // see stackoverflow below for explanation:
+      // https://stackoverflow.com/a/42432585
+      for indexPath in indexPathsOfPicsToRemove.sorted().reversed() {
+        self.flickrPhotos.remove(at: indexPath.row)
+
+        // deselect the pictures that were removed
+        let cell = photoCollectionView.cellForItem(at: indexPath) as! PhotoCollectionViewCell
+        cell.backgroundColor = .none
+      }
+
+      self.flickrPhotos.append(contentsOf: flickrPhotos)
+
+      // set everything back to original settings
+      collectionEditButton.setTitle("New Collection", for: .normal)
+      picSelectionMode = false
+      indexPathsOfPicsToRemove = []
+      print("Indices of pics to remove, AFTER: \(indexPathsOfPicsToRemove)")
+    }
 
     self.photoCollectionView.reloadData()
     self.activityIndicator.stopAnimating()
