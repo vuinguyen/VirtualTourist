@@ -26,7 +26,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
         return
     }
 
-    activityIndicator.startAnimating()
+    updateWithPics(picsUpdated: false)
 
     if picSelectionMode {
       print("we're in pic selection mode, yo!")
@@ -37,17 +37,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
                                    totalNumPicsAvailable: totalNumPicsAvailable,
                                    updatedNumPicsToDisplay: indexPathsOfPicsToRemove.count,
                                    maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNums, error) in
-                                    self.updateCollectionView2(flickrPhotos: flickrPhotos, totalNumPics: totalNums, error: error, updateAllPics: false)
-
-        /*
-      FlickrClient.getPhotoList(latitude: latitude,
-                                longitude: longitude,
-                                totalNumPicsAvailable: totalNumPicsAvailable,
-                                updatedNumPicsToDisplay: indexPathsOfPicsToRemove.count,
-                                maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNumPics, error) in
-                                  self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNumPics, error: error,
-                                                            updateAllPics: false)
- */
+                                    self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNums, error: error, updateAllPics: false)
       }
 
     } else {
@@ -55,23 +45,12 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
       // let's call flickr here
       print("downloading data from Flickr!")
-      //let latitude  = 40.52972239576226
-      //let longitude = -96.65559787790511
-/*
-      FlickrClient.getPhotoList(latitude: latitude,
-                                longitude: longitude,
-                                totalNumPicsAvailable: totalNumPicsAvailable,
-                                updatedNumPicsToDisplay: maxPicsDisplayed,
-                                maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNumPics, error) in
-                                  self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNumPics, error: error)
-      }
-*/
       FlickrClient.getFlickrPhotos(latitude: latitude,
                                    longitude: longitude,
                                    totalNumPicsAvailable: totalNumPicsAvailable,
                                    updatedNumPicsToDisplay: maxPicsDisplayed,
                                    maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNums, error) in
-                                    self.updateCollectionView2(flickrPhotos: flickrPhotos, totalNumPics: totalNums, error: error)
+                                    self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNums, error: error)
 
       }
 
@@ -132,10 +111,9 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
         return
     }
 
-    activityIndicator.startAnimating()
+    updateWithPics(picsUpdated: false)
 
     // check to see if we have any photos persisted, if not, let's get them!
-
     do {
       let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Photo")
       let photos = try managedContext.fetch(fetchRequest)
@@ -148,26 +126,15 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
         }
         DispatchQueue.main.async {
           print("displaying photos from Core Data!")
-          self.photoCollectionView.reloadData()
-          self.activityIndicator.stopAnimating()
+          self.updateWithPics(picsUpdated: true)
         }
       } else {
-
-        /*
-         FlickrClient.getPhotoList(latitude: latitude,
-         longitude: longitude,
-         totalNumPicsAvailable: totalNumPicsAvailable,
-         updatedNumPicsToDisplay: maxPicsDisplayed,
-         maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNumPics, error) in
-         self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNumPics, error: error)
-         }
-         */
         FlickrClient.getFlickrPhotos(latitude: latitude,
                                      longitude: longitude,
                                      totalNumPicsAvailable: totalNumPicsAvailable,
                                      updatedNumPicsToDisplay: maxPicsDisplayed,
                                      maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNums, error) in
-          self.updateCollectionView2(flickrPhotos: flickrPhotos, totalNumPics: totalNums, error: error)
+          self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNums, error: error)
         } // end gotPhotoList
       } // end else
     } // end do
@@ -187,12 +154,14 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     photoCollectionView.reloadData()
   }
 
-  func updateCollectionView2(flickrPhotos: [FlickrPhoto]?, totalNumPics: Int?, error: Error?, updateAllPics: Bool = true) {
+  func updateCollectionView(flickrPhotos: [FlickrPhoto]?, totalNumPics: Int?, error: Error?, updateAllPics: Bool = true) {
 
     guard let flickrPhotos = flickrPhotos,
       let totalNumPics = totalNumPics else
     {
-      self.activityIndicator.stopAnimating()
+      self.flickrPhotos = []
+      updateWithPics(picsUpdated: true)
+
       if let error = error {
         print("we got an error \(error)")
       }
@@ -229,12 +198,27 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       print("Indices of pics to remove, AFTER: \(indexPathsOfPicsToRemove)")
     }
 
-    self.photoCollectionView.reloadData()
-    self.activityIndicator.stopAnimating()
-
+    updateWithPics(picsUpdated: true)
   }
 
-  func updateCollectionView(flickrPhotos: [FlickrPhoto]?, totalNumPics: Int?, error: Error?, updateAllPics: Bool = true) {
+  // other items to update, before or after pictures are updated
+  func updateWithPics(picsUpdated: Bool = true) {
+
+    // setting things up after update
+    if picsUpdated {
+      self.photoCollectionView.reloadData()
+      self.collectionEditButton.isEnabled = true
+      self.activityIndicator.stopAnimating()
+    } else {
+      // set things up before picture update
+      self.collectionEditButton.isEnabled = false
+      activityIndicator.startAnimating()
+    }
+  }
+
+  // OBE: will remove soon
+  /*
+  func updateCollectionViewOld(flickrPhotos: [FlickrPhoto]?, totalNumPics: Int?, error: Error?, updateAllPics: Bool = true) {
     print("returned from getPhotoList")
 
     guard let flickrPhotos = flickrPhotos,
@@ -279,10 +263,11 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       print("Indices of pics to remove, AFTER: \(indexPathsOfPicsToRemove)")
 
     }
-    self.photoCollectionView.reloadData()
 
+    self.photoCollectionView.reloadData()
     self.activityIndicator.stopAnimating()
   }
+ */
 
   func addPhoto() {
 
