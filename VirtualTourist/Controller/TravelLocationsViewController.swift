@@ -133,6 +133,8 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
  */
     getPinFromAnnotation(selectedAnnotation: annotation) { (pin, error) in
       self.managedContext.delete(pin!)
+      try! self.managedContext.save()
+
       self.mapView.removeAnnotation(annotation)
     }
   }

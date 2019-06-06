@@ -79,6 +79,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
   var appDelegate: AppDelegate!
   var managedContext: NSManagedObjectContext!
+  var fetchedResultsController:NSFetchedResultsController<Photo>!
 
   var blockOperations: [BlockOperation] = []
 
@@ -127,8 +128,25 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
     // check to see if we have any photos persisted, if not, let's get them!
     do {
-      let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Photo")
-      let photos = try managedContext.fetch(fetchRequest)
+      //let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Photo")
+
+      guard let pin = pin else {
+        return
+      }
+      let fetchRequest:NSFetchRequest<Photo> = Photo.fetchRequest()
+      let predicate = NSPredicate(format: "pin == %@", pin)
+      fetchRequest.predicate = predicate
+      let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: true)
+      fetchRequest.sortDescriptors = [sortDescriptor]
+
+      fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: managedContext
+        , sectionNameKeyPath: nil, cacheName: "\(pin)-photos")
+      fetchedResultsController.delegate = self
+      //let photos = try managedContext.fetch(fetchRequest)
+      try fetchedResultsController.performFetch()
+      guard let photos = fetchedResultsController.fetchedObjects else {
+        return
+      }
       if photos.count > 0 {
         // This must be completely rewritten to use data
         // saved from Flickr
@@ -199,7 +217,8 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     if updateAllPics == true {
       self.flickrPhotos = []
       // TODO: Add here AND in Core Data
-      self.flickrPhotos = flickrPhotos
+      //self.flickrPhotos = flickrPhotos
+
     } else {
       // Remove old pictures from collection view first
 
@@ -209,7 +228,9 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       // https://stackoverflow.com/a/42432585
       for indexPath in indexPathsOfPicsToRemove.sorted().reversed() {
         // TODO: remove from here, AND from CoreData
-        self.flickrPhotos.remove(at: indexPath.row)
+        //self.flickrPhotos.remove(at: indexPath.row)
+        //deletePhoto(at: indexPath)
+        deletePhoto(at: indexPath)
 
         // deselect the pictures that were removed
         let cell = photoCollectionView.cellForItem(at: indexPath) as! PhotoCollectionViewCell
@@ -217,13 +238,18 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       }
 
       // TODO: add here, AND in CoreData
-      self.flickrPhotos.append(contentsOf: flickrPhotos)
+      //self.flickrPhotos.append(contentsOf: flickrPhotos)
+
 
       // set everything back to original settings
       collectionEditButton.setTitle("New Collection", for: .normal)
       picSelectionMode = false
       indexPathsOfPicsToRemove = []
       print("Indices of pics to remove, AFTER: \(indexPathsOfPicsToRemove)")
+    }
+
+    for photo in flickrPhotos {
+      addPhoto(flickrPhoto: photo)
     }
 
     updateWithPics(picsUpdated: true)
@@ -245,12 +271,31 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     }
   }
 
-  func addPhoto() {
+  func addPhoto(flickrPhoto: FlickrPhoto) {
+    // add to Core Data
 
+    // add to collection view
+    flickrPhotos.append(flickrPhoto)
   }
 
-  func removePhoto() {
+  func deletePhoto(at indexPath: IndexPath) {
+    // delete from Core Data
 
+    /*
+    do {
+      let photoToDelete = fetchedResultsController.object(at: indexPath)
+      if photoToDelete != nil {
+        managedContext.delete(photoToDelete)
+      }
+
+      try managedContext.save()
+
+    } catch _ as NSError {
+      print("unable to delete photo")
+    }
+*/
+    // delete from collection view
+    self.flickrPhotos.remove(at: indexPath.row)
   }
 
   // OBE: will remove soon
