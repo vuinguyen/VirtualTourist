@@ -61,8 +61,9 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
   private let reusePhotoCellIdentifier = "PhotoCollectionViewCell"
 
-  var resultsPageNumber: Int = 0
+  // This will be OBE soon
   var pics = [UIImage]()
+
   var mapAnnotation: MKPointAnnotation?
   var latitude: Double?
   var longitude: Double?
@@ -70,8 +71,8 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   var indexPathsOfPicsToRemove = [IndexPath]()
 
   // total number of pics available on Flickr for this latitude and longitude
-
   var totalNumPicsAvailable: Int = 0
+
   let maxPicsDisplayed = 12
   var flickrPhotos = [FlickrPhoto]()
 
@@ -99,8 +100,6 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     flowLayout.minimumInteritemSpacing = space
     flowLayout.minimumLineSpacing = space
     flowLayout.itemSize = CGSize(width: dimension, height: dimension)
-
-    getDefaultPics()
   }
 
 
@@ -119,6 +118,9 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Photo")
       let photos = try managedContext.fetch(fetchRequest)
       if photos.count > 0 {
+        // This must be completely rewritten to use data
+        // saved from Flickr
+
         pics = []
         for photo in photos {
           if let image = photo.value(forKey: "image") as? UIImage {
@@ -146,6 +148,8 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
   }
 
+  // This should be OBE soon
+  /*
   func getDefaultPics() {
     for _ in 0..<maxPicsDisplayed {
       if let image = UIImage(named: "Placeholder1") {
@@ -154,6 +158,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     }
     photoCollectionView.reloadData()
   }
+ */
 
   func updateCollectionView(flickrPhotos: [FlickrPhoto]?, totalNumPics: Int?, error: Error?, updateAllPics: Bool = true) {
 
