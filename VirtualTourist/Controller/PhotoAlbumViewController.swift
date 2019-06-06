@@ -140,7 +140,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       fetchRequest.sortDescriptors = [sortDescriptor]
 
       fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: managedContext
-        , sectionNameKeyPath: nil, cacheName: "\(pin)-photos")
+        , sectionNameKeyPath: nil, cacheName: nil)
       fetchedResultsController.delegate = self
       //let photos = try managedContext.fetch(fetchRequest)
       try fetchedResultsController.performFetch()
@@ -151,15 +151,17 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
         // This must be completely rewritten to use data
         // saved from Flickr
 
+        print("we've got photos from Core Data!")
         flickrPhotos = []
         //pics = []
         for photo in photos {
-          if let image = photo.value(forKey: "image") as? UIImage,
-             let id    = photo.value(forKey: "id") as? String,
+          //if let image = photo.value(forKey: "image") as? UIImage,
+          if let id    = photo.value(forKey: "id") as? String,
              let farm = photo.value(forKey: "farm") as? Int,
              let server = photo.value(forKey: "server") as? String,
              let secret = photo.value(forKey: "secret") as? String {
-            flickrPhotos.append(FlickrPhoto(photoID: id, farm: farm, server: server, secret: secret, photoImage: image))
+           // flickrPhotos.append(FlickrPhoto(photoID: id, farm: farm, server: server, secret: secret, photoImage: image))
+            flickrPhotos.append(FlickrPhoto(photoID: id, farm: farm, server: server, secret: secret))
           }
 
         }
@@ -273,6 +275,32 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
   func addPhoto(flickrPhoto: FlickrPhoto) {
     // add to Core Data
+    /*
+    let photo = Photo(context: managedContext)
+    photo.creationDate = Date()
+    photo.pin = pin!
+    photo.farm = Int16(flickrPhoto.farm)
+    photo.id = flickrPhoto.photoID
+    photo.server = flickrPhoto.server
+    photo.secret = flickrPhoto.secret
+
+ */
+
+    let entity = NSEntityDescription.entity(forEntityName: "Photo", in: managedContext)!
+    let photo = NSManagedObject(entity: entity, insertInto: managedContext)
+    photo.setValue(pin, forKey: "pin")
+    photo.setValue(Date(), forKey: "creationDate")
+    photo.setValue(flickrPhoto.farm, forKey: "farm")
+    photo.setValue(flickrPhoto.photoID, forKey: "id")
+    photo.setValue(flickrPhoto.server, forKey: "server")
+    photo.setValue(flickrPhoto.secret, forKey: "secret")
+
+    do {
+      try managedContext.save()
+    } catch let error as NSError {
+      print("Could not save. \(error), \(error.userInfo)")
+    }
+
 
     // add to collection view
     flickrPhotos.append(flickrPhoto)
@@ -281,19 +309,19 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   func deletePhoto(at indexPath: IndexPath) {
     // delete from Core Data
 
-    /*
+
     do {
       let photoToDelete = fetchedResultsController.object(at: indexPath)
-      if photoToDelete != nil {
+      //if photoToDelete != nil {
         managedContext.delete(photoToDelete)
-      }
+     // }
 
       try managedContext.save()
 
     } catch _ as NSError {
       print("unable to delete photo")
     }
-*/
+
     // delete from collection view
     self.flickrPhotos.remove(at: indexPath.row)
   }
@@ -393,7 +421,8 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
   // MARK: UICollectionViewDataSource
   override func numberOfSections(in collectionView: UICollectionView) -> Int {
-    return 1
+    //return 1
+    return fetchedResultsController.sections?.count ?? 1
   }
 
   override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -423,6 +452,11 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
         }
         let image = UIImage(data: data)
         cell.photoImageView.image = image
+
+        // save the photo that was just downloaded into flickrPhoto 
+        flickrPhoto.photoImage = image
+
+        // and into core data?
       }
     }
   
@@ -525,6 +559,7 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
     }
   }
 
+  /*
   func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
     photoCollectionView.performBatchUpdates({ () -> Void in
       for operation: BlockOperation in self.blockOperations {
@@ -534,4 +569,5 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
       self.blockOperations.removeAll(keepingCapacity: false)
     })
   }
+ */
 }
