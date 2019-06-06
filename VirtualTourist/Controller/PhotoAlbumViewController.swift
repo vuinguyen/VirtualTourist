@@ -220,7 +220,9 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       self.flickrPhotos = []
       // TODO: Add here AND in Core Data
       //self.flickrPhotos = flickrPhotos
-
+      for photo in flickrPhotos {
+        addPhoto(flickrPhoto: photo)
+      }
     } else {
       // Remove old pictures from collection view first
 
@@ -241,17 +243,15 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
       // TODO: add here, AND in CoreData
       //self.flickrPhotos.append(contentsOf: flickrPhotos)
-
+      for photo in flickrPhotos {
+        addPhoto(flickrPhoto: photo)
+      }
 
       // set everything back to original settings
       collectionEditButton.setTitle("New Collection", for: .normal)
       picSelectionMode = false
       indexPathsOfPicsToRemove = []
       print("Indices of pics to remove, AFTER: \(indexPathsOfPicsToRemove)")
-    }
-
-    for photo in flickrPhotos {
-      addPhoto(flickrPhoto: photo)
     }
 
     updateWithPics(picsUpdated: true)
