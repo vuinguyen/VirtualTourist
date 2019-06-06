@@ -78,7 +78,18 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
   var appDelegate: AppDelegate!
   var managedContext: NSManagedObjectContext!
-  
+
+  var blockOperations: [BlockOperation] = []
+
+  deinit {
+    // Cancel all block operations when VC deallocates
+    for operation: BlockOperation in blockOperations {
+      operation.cancel()
+    }
+
+    blockOperations.removeAll(keepingCapacity: false)
+  }
+
   override func viewDidLoad() {
     super.viewDidLoad()
 
@@ -121,11 +132,17 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
         // This must be completely rewritten to use data
         // saved from Flickr
 
-        pics = []
+        flickrPhotos = []
+        //pics = []
         for photo in photos {
-          if let image = photo.value(forKey: "image") as? UIImage {
-            pics.append(image)
+          if let image = photo.value(forKey: "image") as? UIImage,
+             let id    = photo.value(forKey: "id") as? String,
+             let farm = photo.value(forKey: "farm") as? Int,
+             let server = photo.value(forKey: "server") as? String,
+             let secret = photo.value(forKey: "secret") as? String {
+            flickrPhotos.append(FlickrPhoto(photoID: id, farm: farm, server: server, secret: secret, photoImage: image))
           }
+
         }
         DispatchQueue.main.async {
           print("displaying photos from Core Data!")
@@ -180,6 +197,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
     if updateAllPics == true {
       self.flickrPhotos = []
+      // TODO: Add here AND in Core Data
       self.flickrPhotos = flickrPhotos
     } else {
       // Remove old pictures from collection view first
@@ -189,6 +207,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       // see stackoverflow below for explanation:
       // https://stackoverflow.com/a/42432585
       for indexPath in indexPathsOfPicsToRemove.sorted().reversed() {
+        // TODO: remove from here, AND from CoreData
         self.flickrPhotos.remove(at: indexPath.row)
 
         // deselect the pictures that were removed
@@ -196,6 +215,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
         cell.backgroundColor = .none
       }
 
+      // TODO: add here, AND in CoreData
       self.flickrPhotos.append(contentsOf: flickrPhotos)
 
       // set everything back to original settings
@@ -222,6 +242,14 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       collectionEditButton.isEnabled = false
       activityIndicator.startAnimating()
     }
+  }
+
+  func addPhoto() {
+
+  }
+
+  func removePhoto() {
+
   }
 
   // OBE: will remove soon
@@ -277,13 +305,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   }
  */
 
-  func addPhoto() {
 
-  }
-
-  func removePhoto() {
-
-  }
   
   func displayMapPin() {
     if let annotation = mapAnnotation {
@@ -372,5 +394,98 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     // go into edit mode
     collectionEditButton.setTitle("Remove Selected Pictures", for: .normal)
     picSelectionMode = true
+  }
+}
+
+extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
+  func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+    if type == NSFetchedResultsChangeType.insert {
+      print("Insert Object: \(String(describing: newIndexPath))")
+
+      blockOperations.append(
+        BlockOperation(block: { [weak self] in
+          if self != nil {
+            self?.photoCollectionView!.insertItems(at: [newIndexPath!])
+          }
+        })
+      )
+    }
+    else if type == NSFetchedResultsChangeType.update {
+      print("Update Object: \(String(describing: indexPath))")
+      blockOperations.append(
+        BlockOperation(block: { [weak self] in
+          if self != nil {
+            self?.photoCollectionView!.reloadItems(at: [indexPath!])
+          }
+        })
+      )
+    }
+    else if type == NSFetchedResultsChangeType.move {
+      print("Move Object: \(String(describing: indexPath))")
+
+      blockOperations.append(
+        BlockOperation(block: { [weak self] in
+          if self != nil {
+            self?.photoCollectionView!.moveItem(at: indexPath!, to: newIndexPath!)
+          }
+        })
+      )
+    }
+    else if type == NSFetchedResultsChangeType.delete {
+      print("Delete Object: \(String(describing: indexPath))")
+
+      blockOperations.append(
+        BlockOperation(block: { [weak self] in
+          if self != nil {
+            self?.photoCollectionView!.deleteItems(at: [indexPath!])
+          }
+        })
+      )
+    }
+  }
+
+  func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
+    if type == NSFetchedResultsChangeType.insert {
+      print("Insert Section: \(sectionIndex)")
+
+      blockOperations.append(
+        BlockOperation(block: { [weak self] in
+          if self != nil {
+            self?.photoCollectionView!.insertSections(NSIndexSet(index: sectionIndex) as IndexSet)
+          }
+        })
+      )
+    }
+    else if type == NSFetchedResultsChangeType.update {
+      print("Update Section: \(sectionIndex)")
+      blockOperations.append(
+        BlockOperation(block: { [weak self] in
+          if self != nil {
+            self?.photoCollectionView!.reloadSections(NSIndexSet(index: sectionIndex) as IndexSet)
+          }
+        })
+      )
+    }
+    else if type == NSFetchedResultsChangeType.delete {
+      print("Delete Section: \(sectionIndex)")
+
+      blockOperations.append(
+        BlockOperation(block: { [weak self] in
+          if self != nil {
+            self?.photoCollectionView!.deleteSections(NSIndexSet(index: sectionIndex) as IndexSet)
+          }
+        })
+      )
+    }
+  }
+
+  func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+    photoCollectionView.performBatchUpdates({ () -> Void in
+      for operation: BlockOperation in self.blockOperations {
+        operation.start()
+      }
+    }, completion: { (finished) -> Void in
+      self.blockOperations.removeAll(keepingCapacity: false)
+    })
   }
 }

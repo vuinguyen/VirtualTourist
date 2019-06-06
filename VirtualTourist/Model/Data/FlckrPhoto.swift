@@ -45,11 +45,15 @@ class FlickrPhoto: Equatable {
   let server: String
   let secret: String
 
-  init (photoID: String, farm: Int, server: String, secret: String) {
+  init (photoID: String, farm: Int, server: String, secret: String, photoImage: UIImage? = nil) {
     self.photoID = photoID
     self.farm = farm
     self.server = server
     self.secret = secret
+
+    if let photo = photoImage {
+      self.photoImage = photo
+    }
   }
 
   func flickrImageURL(_ size: String = "q") -> URL? {
