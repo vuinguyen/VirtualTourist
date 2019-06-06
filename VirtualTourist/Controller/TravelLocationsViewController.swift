@@ -30,6 +30,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
   var appDelegate: AppDelegate!
   var managedContext: NSManagedObjectContext!
   var selectedAnnotation: MKPointAnnotation?
+  var selectedPin: Pin?
 
   @IBAction func dropPin(_ gestureRecognizer: UILongPressGestureRecognizer) {
     if gestureRecognizer.state == .ended {
@@ -98,6 +99,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
   }
 
   func deletePin(annotation: MKAnnotation) {
+    /*
     let annotationToDelete = annotation
 
     // use predicate to look for the Pin to delete and remove it
@@ -119,12 +121,19 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
         try managedContext.save()
 
         // remove it from the map
-        mapView.removeAnnotation(annotation)
+        DispatchQueue.main.async {
+          self.mapView.removeAnnotation(annotation)
+        }
 
         print("annotation removed!")
       }
     } catch let error as NSError {
       print("Could not fetch or save from context. \(error), \(error.userInfo)")
+    }
+ */
+    getPinFromAnnotation(selectedAnnotation: annotation) { (pin, error) in
+      self.managedContext.delete(pin!)
+      self.mapView.removeAnnotation(annotation)
     }
   }
 
@@ -145,6 +154,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     print("latitude: \(coordinate.latitude), longitude: \(coordinate.longitude)")
     pin.setValue(coordinate.latitude, forKeyPath: "latitude")
     pin.setValue(coordinate.longitude, forKeyPath: "longitude")
+    pin.setValue(Date(), forKey: "creationDate")
 
     do {
       try managedContext.save()
@@ -178,6 +188,36 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     return annotations
   }
 
+  func getPinFromAnnotation(selectedAnnotation: MKAnnotation, completion: @escaping (Pin?, Error?) -> Void) {
+    //var pinFound: Pin?
+    // use predicate to look for the Pin to delete and remove it
+    // from the current context
+    print("latitude is \(selectedAnnotation.coordinate.latitude)")
+    print("longitude is \(selectedAnnotation.coordinate.longitude)")
+    let latitudePredicate = NSPredicate(format: "latitude = %lf", selectedAnnotation.coordinate.latitude)
+    let longitudePredicate = NSPredicate(format: "longitude = %lf", selectedAnnotation.coordinate.longitude)
+    let coordinatePredicate = NSCompoundPredicate(type: .and, subpredicates: [latitudePredicate, longitudePredicate])
+
+    do {
+      let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Pin")
+      let pins = try managedContext.fetch(fetchRequest)
+      let pinsFound = (pins as NSArray).filtered(using: coordinatePredicate) as! [NSManagedObject]
+      if pinsFound.count >= 1 {
+
+        if let pinFound = pinsFound[0] as? Pin {
+          DispatchQueue.main.async {
+            completion(pinFound, nil)
+          }
+        }
+      }
+    } catch let error as NSError {
+
+      print("Could not fetch or save from context. \(error), \(error.userInfo)")
+      completion(nil, error)
+    }
+
+   // return pinFound
+  }
 
   func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
 
@@ -209,8 +249,14 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
       deletePin(annotation: annotation)
     } else {
     // segue into next viewcontroller here
-      selectedAnnotation = annotation as? MKPointAnnotation
-      performSegue(withIdentifier: "photoAlbumSegue", sender: self)
+      if let annotation = annotation as? MKPointAnnotation {
+        getPinFromAnnotation(selectedAnnotation: annotation) { (pin, error) in
+          self.selectedAnnotation = annotation
+          self.selectedPin = pin
+          self.performSegue(withIdentifier: "photoAlbumSegue", sender: self)
+        }
+
+      }
     }
   }
 
@@ -218,6 +264,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     if segue.identifier == "photoAlbumSegue" {
       let controller = segue.destination as! PhotoAlbumViewController
       controller.mapAnnotation = selectedAnnotation
+      controller.pin = selectedPin
       //print("I'm going to the photo album!")
     }
   }

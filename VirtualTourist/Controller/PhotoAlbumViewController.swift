@@ -65,6 +65,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   var pics = [UIImage]()
 
   var mapAnnotation: MKPointAnnotation?
+  var pin: Pin?
   var latitude: Double?
   var longitude: Double?
   var picSelectionMode = false
