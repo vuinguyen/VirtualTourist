@@ -144,21 +144,33 @@
                                 <rect key="frame" x="188.66666666666666" y="349.66666666666669" width="37" height="37"/>
                                 <color key="color" red="0.0" green="0.0" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </activityIndicatorView>
+                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No Pictures Found" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1ZB-aM-IGR">
+                                <rect key="frame" x="136" y="411" width="142" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="tg6-xR-IGA"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="Kpa-9h-MNe" firstAttribute="top" secondItem="bve-sc-d1w" secondAttribute="top" id="07a-wr-nnD"/>
+                            <constraint firstItem="1ZB-aM-IGR" firstAttribute="centerX" secondItem="bEA-X6-oiJ" secondAttribute="centerX" id="CV3-WT-iNv"/>
                             <constraint firstItem="nZR-UY-2m3" firstAttribute="top" secondItem="ExH-u8-eJF" secondAttribute="bottom" id="Cbi-dZ-UbL"/>
                             <constraint firstItem="ExH-u8-eJF" firstAttribute="leading" secondItem="bve-sc-d1w" secondAttribute="leading" id="E4t-ZO-jod"/>
                             <constraint firstItem="ExH-u8-eJF" firstAttribute="top" secondItem="Kpa-9h-MNe" secondAttribute="bottom" id="LWR-HY-P0l"/>
                             <constraint firstItem="seI-Gr-nHR" firstAttribute="centerY" secondItem="bEA-X6-oiJ" secondAttribute="centerY" id="LXy-cS-YYz"/>
                             <constraint firstItem="bve-sc-d1w" firstAttribute="trailing" secondItem="ExH-u8-eJF" secondAttribute="trailing" id="NDn-di-DEV"/>
+                            <constraint firstItem="1ZB-aM-IGR" firstAttribute="leading" secondItem="bve-sc-d1w" secondAttribute="leading" constant="136" id="O78-T8-4Mg"/>
                             <constraint firstItem="Kpa-9h-MNe" firstAttribute="width" secondItem="bEA-X6-oiJ" secondAttribute="height" multiplier="9:16" id="WkZ-Mu-BVU"/>
                             <constraint firstItem="Kpa-9h-MNe" firstAttribute="leading" secondItem="bve-sc-d1w" secondAttribute="leading" id="cTj-0H-kSV"/>
                             <constraint firstItem="nZR-UY-2m3" firstAttribute="leading" secondItem="bve-sc-d1w" secondAttribute="leading" id="cav-sd-vei"/>
                             <constraint firstItem="bve-sc-d1w" firstAttribute="trailing" secondItem="nZR-UY-2m3" secondAttribute="trailing" id="ekH-vv-cW9"/>
                             <constraint firstItem="bve-sc-d1w" firstAttribute="bottom" secondItem="nZR-UY-2m3" secondAttribute="bottom" id="oA3-Cs-Ogv"/>
                             <constraint firstItem="seI-Gr-nHR" firstAttribute="centerX" secondItem="bEA-X6-oiJ" secondAttribute="centerX" id="pjl-zk-KcI"/>
+                            <constraint firstItem="1ZB-aM-IGR" firstAttribute="centerY" secondItem="bEA-X6-oiJ" secondAttribute="centerY" constant="68" id="rDU-hI-ZcZ"/>
                             <constraint firstItem="Kpa-9h-MNe" firstAttribute="trailing" secondItem="bve-sc-d1w" secondAttribute="trailing" id="xBE-Ja-PgZ"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="bve-sc-d1w"/>
@@ -168,6 +180,7 @@
                         <outlet property="collectionEditButton" destination="nZR-UY-2m3" id="AdM-xK-TfX"/>
                         <outlet property="flowLayout" destination="XGD-to-DNi" id="Sd0-va-tpN"/>
                         <outlet property="mapView" destination="Kpa-9h-MNe" id="nlR-uV-TR7"/>
+                        <outlet property="noPicturesLabel" destination="1ZB-aM-IGR" id="kUv-7E-jph"/>
                         <outlet property="photoCollectionView" destination="ExH-u8-eJF" id="S5Z-1B-qb8"/>
                     </connections>
                 </viewController>

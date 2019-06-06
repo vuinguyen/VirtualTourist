@@ -12,6 +12,7 @@ import CoreData
 
 class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   
+  @IBOutlet weak var noPicturesLabel: UILabel!
   @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
   @IBOutlet weak var collectionEditButton: UIButton!
   @IBOutlet weak var photoCollectionView: UICollectionView!
@@ -160,6 +161,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       let totalNumPics = totalNumPics else
     {
       self.flickrPhotos = []
+      noPicturesLabel.isHidden = false
       updateWithPics(picsUpdated: true)
 
       if let error = error {
@@ -206,12 +208,13 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
     // setting things up after update
     if picsUpdated {
-      self.photoCollectionView.reloadData()
-      self.collectionEditButton.isEnabled = true
-      self.activityIndicator.stopAnimating()
+      photoCollectionView.reloadData()
+      collectionEditButton.isEnabled = true
+      activityIndicator.stopAnimating()
     } else {
       // set things up before picture update
-      self.collectionEditButton.isEnabled = false
+      noPicturesLabel.isHidden = true
+      collectionEditButton.isEnabled = false
       activityIndicator.startAnimating()
     }
   }
