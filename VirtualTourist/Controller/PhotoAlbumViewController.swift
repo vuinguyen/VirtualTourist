@@ -142,25 +142,21 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: managedContext
         , sectionNameKeyPath: nil, cacheName: nil)
       fetchedResultsController.delegate = self
-      //let photos = try managedContext.fetch(fetchRequest)
       try fetchedResultsController.performFetch()
+
       guard let photos = fetchedResultsController.fetchedObjects else {
         return
       }
-      if photos.count > 0 {
-        // This must be completely rewritten to use data
-        // saved from Flickr
 
+      if photos.count > 0 {
         print("we've got photos from Core Data!")
         flickrPhotos = []
-        //pics = []
         for photo in photos {
           //if let image = photo.value(forKey: "image") as? UIImage,
           if let id    = photo.value(forKey: "id") as? String,
              let farm = photo.value(forKey: "farm") as? Int,
              let server = photo.value(forKey: "server") as? String,
              let secret = photo.value(forKey: "secret") as? String {
-           // flickrPhotos.append(FlickrPhoto(photoID: id, farm: farm, server: server, secret: secret, photoImage: image))
             flickrPhotos.append(FlickrPhoto(photoID: id, farm: farm, server: server, secret: secret))
           }
 
@@ -190,18 +186,6 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     super.viewDidDisappear(animated)
     fetchedResultsController = nil
   }
-  
-  // This should be OBE soon
-  /*
-  func getDefaultPics() {
-    for _ in 0..<maxPicsDisplayed {
-      if let image = UIImage(named: "Placeholder1") {
-        pics.append(image)
-      }
-    }
-    photoCollectionView.reloadData()
-  }
- */
 
   func updateCollectionView(flickrPhotos: [FlickrPhoto]?, totalNumPics: Int?, error: Error?, updateAllPics: Bool = true) {
 
@@ -232,8 +216,6 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       }
 
       self.flickrPhotos = []
-      // TODO: Add here AND in Core Data
-      //self.flickrPhotos = flickrPhotos
       for photo in flickrPhotos {
         addPhoto(flickrPhoto: photo)
       }
@@ -245,9 +227,6 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       // see stackoverflow below for explanation:
       // https://stackoverflow.com/a/42432585
       for indexPath in indexPathsOfPicsToRemove.sorted().reversed() {
-        // TODO: remove from here, AND from CoreData
-        //self.flickrPhotos.remove(at: indexPath.row)
-        //deletePhoto(at: indexPath)
         deletePhoto(at: indexPath)
 
         // deselect the pictures that were removed
@@ -255,8 +234,6 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
         cell.backgroundColor = .none
       }
 
-      // TODO: add here, AND in CoreData
-      //self.flickrPhotos.append(contentsOf: flickrPhotos)
       print("number of flickrPhotos is \(flickrPhotos.count)")
       for photo in flickrPhotos {
         addPhoto(flickrPhoto: photo)
@@ -290,17 +267,6 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
   func addPhoto(flickrPhoto: FlickrPhoto) {
     // add to Core Data
-    /*
-    let photo = Photo(context: managedContext)
-    photo.creationDate = Date()
-    photo.pin = pin!
-    photo.farm = Int16(flickrPhoto.farm)
-    photo.id = flickrPhoto.photoID
-    photo.server = flickrPhoto.server
-    photo.secret = flickrPhoto.secret
-
- */
-
     let entity = NSEntityDescription.entity(forEntityName: "Photo", in: managedContext)!
     let photo = NSManagedObject(entity: entity, insertInto: managedContext)
     photo.setValue(pin, forKey: "pin")
@@ -341,61 +307,6 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     self.flickrPhotos.remove(at: indexPath.row)
   }
 
-  // OBE: will remove soon
-  /*
-  func updateCollectionViewOld(flickrPhotos: [FlickrPhoto]?, totalNumPics: Int?, error: Error?, updateAllPics: Bool = true) {
-    print("returned from getPhotoList")
-
-    guard let flickrPhotos = flickrPhotos,
-      let totalNumPics = totalNumPics else
-    {
-      self.activityIndicator.stopAnimating()
-      if let error = error {
-        print("we got an error \(error)")
-      }
-      return
-    }
-
-    let images: [UIImage] = flickrPhotos.compactMap({ flickerPhoto in
-      return flickerPhoto.photoImage
-    })
-
-    self.totalNumPicsAvailable = totalNumPics
-    if updateAllPics == true {
-      self.pics = []
-      self.pics = images
-    } else {
-      // Remove old pictures from collection view first
-
-      // I have to do this weird thing where I sort and reverse the indexPaths to fix a bug
-      // I was getting as pictures were being deleted
-      // see stackoverflow below for explanation:
-      // https://stackoverflow.com/a/42432585
-      for indexPath in indexPathsOfPicsToRemove.sorted().reversed() {
-        pics.remove(at: indexPath.row)
-
-        // deselect the pictures that were removed
-        let cell = photoCollectionView.cellForItem(at: indexPath) as! PhotoCollectionViewCell
-        cell.backgroundColor = .none
-      }
-
-      pics.append(contentsOf: images)
-
-      // set everything back to original settings
-      collectionEditButton.setTitle("New Collection", for: .normal)
-      picSelectionMode = false
-      indexPathsOfPicsToRemove = []
-      print("Indices of pics to remove, AFTER: \(indexPathsOfPicsToRemove)")
-
-    }
-
-    self.photoCollectionView.reloadData()
-    self.activityIndicator.stopAnimating()
-  }
- */
-
-
-  
   func displayMapPin() {
     if let annotation = mapAnnotation {
       mapView.addAnnotations([annotation])
@@ -468,7 +379,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
         // save the photo that was just downloaded into flickrPhoto 
         flickrPhoto.photoImage = image
 
-        // and into core data?
+        // and into core data? May try to do this later
       }
     }
   
@@ -570,16 +481,4 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
       )
     }
   }
-
-  /*
-  func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-    photoCollectionView.performBatchUpdates({ () -> Void in
-      for operation: BlockOperation in self.blockOperations {
-        operation.start()
-      }
-    }, completion: { (finished) -> Void in
-      self.blockOperations.removeAll(keepingCapacity: false)
-    })
-  }
- */
 }
