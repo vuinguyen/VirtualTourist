@@ -186,6 +186,11 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
   }
 
+  override func viewDidDisappear(_ animated: Bool) {
+    super.viewDidDisappear(animated)
+    fetchedResultsController = nil
+  }
+  
   // This should be OBE soon
   /*
   func getDefaultPics() {
@@ -217,6 +222,15 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     self.totalNumPicsAvailable = totalNumPics
 
     if updateAllPics == true {
+
+      if flickrPhotos.count > 0 {
+        // must delete these from Core Data!!
+        let indexPathsToDelete = (photoCollectionView.indexPathsForVisibleItems).sorted().reversed()
+        for indexPath in indexPathsToDelete {
+          deletePhoto(at: indexPath)
+        }
+      }
+
       self.flickrPhotos = []
       // TODO: Add here AND in Core Data
       //self.flickrPhotos = flickrPhotos
@@ -243,6 +257,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
       // TODO: add here, AND in CoreData
       //self.flickrPhotos.append(contentsOf: flickrPhotos)
+      print("number of flickrPhotos is \(flickrPhotos.count)")
       for photo in flickrPhotos {
         addPhoto(flickrPhoto: photo)
       }
@@ -432,9 +447,6 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
   override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reusePhotoCellIdentifier, for: indexPath) as! PhotoCollectionViewCell
-    //let pic = self.pics[(indexPath as NSIndexPath).row]
-
-   // cell.photoImageView.image = pic
 
     // first, we'll put a placeholder here
     // then, we'll check to see if FlickerPhoto.photoImage exists, display that
