@@ -400,6 +400,8 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   }
 }
 
+// Note: This extension code was taken from the following:
+// https://gist.github.com/AppsTitude/ce072627c61ea3999b8d
 extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
   func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
     if type == NSFetchedResultsChangeType.insert {

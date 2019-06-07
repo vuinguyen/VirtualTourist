@@ -5,6 +5,8 @@
 //  Created by Vui Nguyen on 5/26/19.
 //  Copyright © 2019 SunfishEmpire. All rights reserved.
 //
+// Note: Parts of this file were taken from Ray Wenderlich tutorial:
+// https://www.raywenderlich.com/9334-uicollectionview-tutorial-getting-started
 
 import UIKit
 
