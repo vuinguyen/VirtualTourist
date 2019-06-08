@@ -58,6 +58,11 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     // Do any additional setup after loading the view.
 
     checkPinsMode()
+
+    appDelegate = UIApplication.shared.delegate as? AppDelegate
+    managedContext = appDelegate.persistentContainer.viewContext
+
+    mapView.addAnnotations(fetchAllPins())
   }
 
   override func viewWillAppear(_ animated: Bool) {
@@ -65,8 +70,6 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
 
     appDelegate = UIApplication.shared.delegate as? AppDelegate
     managedContext = appDelegate.persistentContainer.viewContext
-
-    mapView.addAnnotations(fetchAllPins())
   }
 
   // persist zoom level and map center here
