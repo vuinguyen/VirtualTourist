@@ -20,7 +20,7 @@ class FlickrClient {
 
   class func getRandomPageNum(totalPicsAvailable: Int, maxNumPicsDisplayed: Int) -> Int {
     let numPages = totalPicsAvailable / maxNumPicsDisplayed
-    let randomPageNum = Int.random(in: 1...numPages)
+    let randomPageNum = Int.random(in: 0...numPages)
     print("totalPicsAvailable is \(totalPicsAvailable)")
     print("numPages is \(numPages)")
     print("randomPageNum is \(randomPageNum)")

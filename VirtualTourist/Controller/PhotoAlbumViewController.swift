@@ -152,14 +152,18 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
         print("we've got photos from Core Data!")
         flickrPhotos = []
         for photo in photos {
-          //if let image = photo.value(forKey: "image") as? UIImage,
-          if let id    = photo.value(forKey: "id") as? String,
-             let farm = photo.value(forKey: "farm") as? Int,
+          if let id     = photo.value(forKey: "id") as? String,
+             let farm   = photo.value(forKey: "farm") as? Int,
              let server = photo.value(forKey: "server") as? String,
              let secret = photo.value(forKey: "secret") as? String {
-            flickrPhotos.append(FlickrPhoto(photoID: id, farm: farm, server: server, secret: secret))
-          }
+             let flickrPhoto = FlickrPhoto(photoID: id, farm: farm, server: server, secret: secret)
 
+             if let dataImage = photo.value(forKey: "image") as? Data {
+              let dataAsUIImage = UIImage(data: dataImage)
+              flickrPhoto.photoImage = dataAsUIImage
+             }
+             flickrPhotos.append(flickrPhoto)
+          }
         }
         DispatchQueue.main.async {
           print("displaying photos from Core Data!")
@@ -276,13 +280,15 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     photo.setValue(flickrPhoto.server, forKey: "server")
     photo.setValue(flickrPhoto.secret, forKey: "secret")
 
+    if let flickrImage = flickrPhoto.photoImage {
+      let imageAsData = flickrImage.pngData()
+      photo.setValue(imageAsData, forKey: "image")
+    }
     do {
       try managedContext.save()
     } catch let error as NSError {
       print("Could not save. \(error), \(error.userInfo)")
     }
-
-
     // add to collection view
     flickrPhotos.append(flickrPhoto)
   }
@@ -293,12 +299,8 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
     do {
       let photoToDelete = fetchedResultsController.object(at: indexPath)
-      //if photoToDelete != nil {
-        managedContext.delete(photoToDelete)
-     // }
-
+      managedContext.delete(photoToDelete)
       try managedContext.save()
-
     } catch _ as NSError {
       print("unable to delete photo")
     }
@@ -379,7 +381,13 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
         // save the photo that was just downloaded into flickrPhoto 
         flickrPhoto.photoImage = image
 
-        // and into core data? May try to do this later
+        // and into Core Data
+        do {
+          self.fetchedResultsController.object(at: indexPath).image = data
+          try self.managedContext.save()
+        } catch _ as NSError {
+          print("unable to delete photo")
+        }
       }
     }
   
