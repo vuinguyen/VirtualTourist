@@ -100,47 +100,15 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
   }
 
   func deletePin(annotation: MKAnnotation) {
-    /*
-    let annotationToDelete = annotation
-
-    // use predicate to look for the Pin to delete and remove it
-    // from the current context
-    print("latitude is \(annotationToDelete.coordinate.latitude)")
-    print("longitude is \(annotationToDelete.coordinate.longitude)")
-    let latitudePredicate = NSPredicate(format: "latitude = %lf", annotationToDelete.coordinate.latitude)
-    let longitudePredicate = NSPredicate(format: "longitude = %lf", annotationToDelete.coordinate.longitude)
-    let coordinatePredicate = NSCompoundPredicate(type: .and, subpredicates: [latitudePredicate, longitudePredicate])
-
-    do {
-      let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Pin")
-      let pins = try managedContext.fetch(fetchRequest)
-      let PinToDelete = (pins as NSArray).filtered(using: coordinatePredicate) as! [NSManagedObject]
-      if PinToDelete.count >= 1 {
-
-        // Now, remove it from Core Data
-        managedContext.delete(PinToDelete[0])
-        try managedContext.save()
-
-        // remove it from the map
-        DispatchQueue.main.async {
-          self.mapView.removeAnnotation(annotation)
-        }
-
-        print("annotation removed!")
-      }
-    } catch let error as NSError {
-      print("Could not fetch or save from context. \(error), \(error.userInfo)")
-    }
- */
     getPinFromAnnotation(selectedAnnotation: annotation) { (pin, error) in
       guard let pin = pin else {
         print("couldn't find pin to delete!")
         return
       }
-      self.managedContext.delete(pin)
-      do {
-        try self.managedContext.save()
 
+      do {
+        self.managedContext.delete(pin)
+        try self.managedContext.save()
         self.mapView.removeAnnotation(annotation)
       } catch let error as NSError {
         print("Could not save delete. \(error), \(error.userInfo)")
@@ -253,52 +221,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     }
 
     if inEditPinsMode {
-      //deletePin(annotation: annotation)
-
-      //mapView.removeAnnotation(annotation)
-      // DispatchQueue.main.async {
-      ///  mapView.removeAnnotation(annotation)
-     // }
-      print("latitude is \(annotation.coordinate.latitude)")
-      print("longitude is \(annotation.coordinate.longitude)")
-      let latitudePredicate = NSPredicate(format: "latitude = %lf", annotation.coordinate.latitude)
-      let longitudePredicate = NSPredicate(format: "longitude = %lf", annotation.coordinate.longitude)
-      let coordinatePredicate = NSCompoundPredicate(type: .and, subpredicates: [latitudePredicate, longitudePredicate])
-
-      do {
-        mapView.removeAnnotation(annotation)
-
-        let fetchRequest:NSFetchRequest<Pin> = Pin.fetchRequest()
-
-        let pins = try managedContext.fetch(fetchRequest)
-        let pinsFound = (pins as NSArray).filtered(using: coordinatePredicate) as! [Pin]
-        if pinsFound.count >= 1 {
-            managedContext.delete(pinsFound[0])
-            try managedContext.save()
-        }
-      } catch let error as NSError {
-
-        print("Could not fetch or save from context. \(error), \(error.userInfo)")
-      }
-
-/*
-      getPinFromAnnotation(selectedAnnotation: annotation) { (pin, error) in
-        guard let pin = pin else {
-          print("couldn't find pin to delete!")
-          return
-        }
-        self.managedContext.delete(pin)
-        do {
-          try self.managedContext.save()
-
-
-        } catch let error as NSError {
-          print("Could not save delete. \(error), \(error.userInfo)")
-        }
-        
-        mapView.removeAnnotation(annotation)
-      }
-*/
+      deletePin(annotation: annotation)
     } else {
     // segue into next viewcontroller here
       if let annotation = annotation as? MKPointAnnotation {
