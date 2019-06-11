@@ -37,8 +37,6 @@
 import UIKit
 
 class FlickrPhoto: Equatable {
-  //var thumbnail: UIImage?
-  //var largeImage: UIImage?
   var photoImage: UIImage?
   let photoID: String
   let farm: Int

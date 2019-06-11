@@ -61,9 +61,6 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
 
   private let reusePhotoCellIdentifier = "PhotoCollectionViewCell"
 
-  // This will be OBE soon
-  var pics = [UIImage]()
-
   var mapAnnotation: MKPointAnnotation?
   var pin: Pin?
   var latitude: Double?
@@ -318,16 +315,6 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
                                           span: MKCoordinateSpan(latitudeDelta: 0.015, longitudeDelta: 0.015))
     }
   }
-
-  /*
-   // MARK: - Navigation
-
-   // In a storyboard-based application, you will often want to do a little preparation before navigation
-   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-   // Get the new view controller using segue.destination.
-   // Pass the selected object to the new view controller.
-   }
-   */
 
   // MARK: MKMapViewDelegate
   func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {

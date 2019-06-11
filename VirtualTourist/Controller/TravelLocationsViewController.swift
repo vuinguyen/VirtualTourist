@@ -17,8 +17,6 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
   
   @IBOutlet weak var editPinsButton: UIBarButtonItem!
   @IBAction func editPins(_ sender: Any) {
-    print("tapped on edit button")
-
     inEditPinsMode = !inEditPinsMode
     checkPinsMode()
   }
@@ -54,8 +52,8 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     }
   }
 
-  // depending on inEditPinsMode, make sure the correct system button is displayed,
-  // the delete Pins button is displayed if applicable
+  // display the correct button title depending on if we're edit pin mode
+  // or not
   func checkPinsMode() {
     if inEditPinsMode == false {
       self.view.frame.origin.y = 0
@@ -110,21 +108,6 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     UserDefaults.standard.set(Double(centerLongitude), forKey: centerLongitudeKey)
     UserDefaults.standard.set(Double(latitudeDelta), forKey: latitudeDeltaKey)
     UserDefaults.standard.set(Double(longitudeDelta), forKey: longitudeDeltaKey)
-  }
-
-  func defaultAnnotation() -> MKPointAnnotation {
-
-    let annotation = MKPointAnnotation()
-
-    // location is Seattle, WA
-    let latitude = CLLocationDegrees(47.60621)
-    let longitude = CLLocationDegrees(-122.3321)
-    let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-    annotation.coordinate = coordinate
-    annotation.title = "current location"
-    annotation.subtitle = "more info"
-
-    return annotation
   }
 
   func addAnnotation(touchPoint: CGPoint) -> MKPointAnnotation {
@@ -204,8 +187,6 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
   func getPinFromAnnotation(selectedAnnotation: MKAnnotation, completion: @escaping (Pin?, Error?) -> Void) {
     // use predicate to look for the Pin to delete and remove it
     // from the current context
-    print("latitude is \(selectedAnnotation.coordinate.latitude)")
-    print("longitude is \(selectedAnnotation.coordinate.longitude)")
     let latitudePredicate = NSPredicate(format: "latitude = %lf", selectedAnnotation.coordinate.latitude)
     let longitudePredicate = NSPredicate(format: "longitude = %lf", selectedAnnotation.coordinate.longitude)
     let coordinatePredicate = NSCompoundPredicate(type: .and, subpredicates: [latitudePredicate, longitudePredicate])
@@ -285,12 +266,12 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
 
     let currentRegion = mapView.region
     let center = currentRegion.center
-    let centerLatitude = center.latitude  // persist this in UserDefaults
-    let centerLongitude = center.longitude  // persist this in UserDefaults
+    let centerLatitude = center.latitude
+    let centerLongitude = center.longitude
 
     let span = currentRegion.span
-    let latitudeDelta = span.latitudeDelta  // persist this in UserDefaults
-    let longitudeDelta = span.longitudeDelta  // persist this in UserDefaults
+    let latitudeDelta = span.latitudeDelta
+    let longitudeDelta = span.longitudeDelta
 
     setMapDefaults(centerLatitude: centerLatitude, centerLongitude: centerLongitude,
                    latitudeDelta: latitudeDelta, longitudeDelta: longitudeDelta)
