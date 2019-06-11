@@ -30,10 +30,18 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
   var selectedAnnotation: MKPointAnnotation?
   var selectedPin: Pin?
 
-  let centerLatitude = "centerLatitude"
-  let centerLongitude = "centerLongitude"
-  let latitudeDelta = "latitudeDelta"
-  let longitudeDelta = "longitudeDelta"
+  enum MapDefault: String {
+    case centerLatitude
+    case centerLongitude
+    case latitudeDelta
+    case longitudeDelta
+  }
+
+  let centerLatitudeKey  = MapDefault.centerLatitude.rawValue
+  let centerLongitudeKey = MapDefault.centerLongitude.rawValue
+  let latitudeDeltaKey   = MapDefault.latitudeDelta.rawValue
+  let longitudeDeltaKey  = MapDefault.longitudeDelta.rawValue
+
 
   @IBAction func dropPin(_ gestureRecognizer: UILongPressGestureRecognizer) {
     if gestureRecognizer.state == .ended {
@@ -80,34 +88,28 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     getMapDefaults()
   }
 
-
   func getMapDefaults() {
-    if UserDefaults.standard.object(forKey: centerLatitude)  != nil &&
-       UserDefaults.standard.object(forKey: centerLongitude) != nil &&
-       UserDefaults.standard.object(forKey: latitudeDelta)   != nil &&
-       UserDefaults.standard.object(forKey: longitudeDelta)  != nil {
-      let latitude = CLLocationDegrees(UserDefaults.standard.double(forKey: centerLatitude))
-      let longitude = CLLocationDegrees(UserDefaults.standard.double(forKey: centerLongitude))
-      let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-      let latDelta = CLLocationDegrees(UserDefaults.standard.double(forKey: latitudeDelta))
-      let longDelta = CLLocationDegrees(UserDefaults.standard.double(forKey: longitudeDelta))
-      mapView.centerCoordinate = coordinate
-      mapView.region = MKCoordinateRegion(center: coordinate,
-                                          span: MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: longDelta))
-      print("got user defaults!")
-    } else {
-      print("dont have user defaults yet")
-    }
+    let latitude = CLLocationDegrees(UserDefaults.standard.double(forKey: centerLatitudeKey))
+    let longitude = CLLocationDegrees(UserDefaults.standard.double(forKey: centerLongitudeKey))
+    let latDelta = CLLocationDegrees(UserDefaults.standard.double(forKey: latitudeDeltaKey))
+    let longDelta = CLLocationDegrees(UserDefaults.standard.double(forKey: longitudeDeltaKey))
+
+    let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    mapView.centerCoordinate = coordinate
+    mapView.region = MKCoordinateRegion(center: coordinate,
+                                        span: MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: longDelta))
+    print("got user defaults!")
+    print("latitude: \(latitude), longitude: \(longitude), latitudeDelta: \(latDelta), longitudeDelta: \(longDelta)")
   }
 
   // persist zoom level and map center here
   func setMapDefaults(centerLatitude: CLLocationDegrees, centerLongitude: CLLocationDegrees,
                       latitudeDelta: CLLocationDegrees, longitudeDelta: CLLocationDegrees) {
 
-    UserDefaults.standard.set(Double(centerLatitude), forKey: "centerLatitude")
-    UserDefaults.standard.set(Double(centerLongitude), forKey: "centerLongitude")
-    UserDefaults.standard.set(Double(latitudeDelta), forKey: "latitudeDelta")
-    UserDefaults.standard.set(Double(longitudeDelta), forKey: "longitudeDelta")
+    UserDefaults.standard.set(Double(centerLatitude), forKey: centerLatitudeKey)
+    UserDefaults.standard.set(Double(centerLongitude), forKey: centerLongitudeKey)
+    UserDefaults.standard.set(Double(latitudeDelta), forKey: latitudeDeltaKey)
+    UserDefaults.standard.set(Double(longitudeDelta), forKey: longitudeDeltaKey)
   }
 
   func defaultAnnotation() -> MKPointAnnotation {
@@ -161,9 +163,9 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
                                  in: managedContext)!
 
     let pin = NSManagedObject(entity: entity,
-                                 insertInto: managedContext)
+                              insertInto: managedContext)
 
-    print("latitude: \(coordinate.latitude), longitude: \(coordinate.longitude)")
+    print("Added Pin, latitude: \(coordinate.latitude), longitude: \(coordinate.longitude)")
     pin.setValue(coordinate.latitude, forKeyPath: "latitude")
     pin.setValue(coordinate.longitude, forKeyPath: "longitude")
     pin.setValue(Date(), forKey: "creationDate")
@@ -232,7 +234,6 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
       let controller = segue.destination as! PhotoAlbumViewController
       controller.mapAnnotation = selectedAnnotation
       controller.pin = selectedPin
-      //print("I'm going to the photo album!")
     }
   }
 
@@ -255,7 +256,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
   }
 
   func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-   // print("I've selected this annotation!")
+    // print("I've selected this annotation!")
 
     mapView.deselectAnnotation(view.annotation, animated: true)
 
@@ -266,7 +267,7 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     if inEditPinsMode {
       deletePin(annotation: annotation)
     } else {
-    // segue into next viewcontroller here
+      // segue into next viewcontroller here
       if let annotation = annotation as? MKPointAnnotation {
         getPinFromAnnotation(selectedAnnotation: annotation) { (pin, error) in
           self.selectedAnnotation = annotation
@@ -279,9 +280,8 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
   }
 
   func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
-    print("map region changed, yo!")
     // this is where we save to user defaults
-    // and then it gets re-read in viewwillappear
+    // and then it gets re-read in ViewWillappear
 
     let currentRegion = mapView.region
     let center = currentRegion.center
@@ -292,7 +292,8 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     let latitudeDelta = span.latitudeDelta  // persist this in UserDefaults
     let longitudeDelta = span.longitudeDelta  // persist this in UserDefaults
 
-    setMapDefaults(centerLatitude: centerLatitude, centerLongitude: centerLongitude, latitudeDelta: latitudeDelta, longitudeDelta: longitudeDelta)
+    setMapDefaults(centerLatitude: centerLatitude, centerLongitude: centerLongitude,
+                   latitudeDelta: latitudeDelta, longitudeDelta: longitudeDelta)
   }
 }
 

@@ -39,7 +39,9 @@ class FlickrClient {
       getRandomPageNum(totalPicsAvailable: totalNumPicsAvailable, maxNumPicsDisplayed: maxNumPicsDisplayed) : 1
 
     let radius = 20
-    let perPage = updatedNumPicsToDisplay // but we only want to download just the number of pictures we need to display
+
+    // we only want to download just the number of pictures we need to display
+    let perPage = updatedNumPicsToDisplay
     // in the updated display
     let searchURLString = "https://www.flickr.com/services/rest/?method=flickr.photos.search" +
       "&api_key=\(APIKeys.ApplicationID)" +
@@ -82,7 +84,6 @@ class FlickrClient {
         }
 
         // check value of stat
-
         switch (stat) {
         case "ok":
           print("Results processed OK")
