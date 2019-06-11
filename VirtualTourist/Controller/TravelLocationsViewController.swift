@@ -30,6 +30,11 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
   var selectedAnnotation: MKPointAnnotation?
   var selectedPin: Pin?
 
+  let centerLatitude = "centerLatitude"
+  let centerLongitude = "centerLongitude"
+  let latitudeDelta = "latitudeDelta"
+  let longitudeDelta = "longitudeDelta"
+
   @IBAction func dropPin(_ gestureRecognizer: UILongPressGestureRecognizer) {
     if gestureRecognizer.state == .ended {
       print("I did a long press!")
@@ -70,11 +75,39 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
 
     appDelegate = UIApplication.shared.delegate as? AppDelegate
     managedContext = appDelegate.persistentContainer.viewContext
+
+    // this is where map's center and region is loaded
+    getMapDefaults()
+  }
+
+
+  func getMapDefaults() {
+    if UserDefaults.standard.object(forKey: centerLatitude)  != nil &&
+       UserDefaults.standard.object(forKey: centerLongitude) != nil &&
+       UserDefaults.standard.object(forKey: latitudeDelta)   != nil &&
+       UserDefaults.standard.object(forKey: longitudeDelta)  != nil {
+      let latitude = CLLocationDegrees(UserDefaults.standard.double(forKey: centerLatitude))
+      let longitude = CLLocationDegrees(UserDefaults.standard.double(forKey: centerLongitude))
+      let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+      let latDelta = CLLocationDegrees(UserDefaults.standard.double(forKey: latitudeDelta))
+      let longDelta = CLLocationDegrees(UserDefaults.standard.double(forKey: longitudeDelta))
+      mapView.centerCoordinate = coordinate
+      mapView.region = MKCoordinateRegion(center: coordinate,
+                                          span: MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: longDelta))
+      print("got user defaults!")
+    } else {
+      print("dont have user defaults yet")
+    }
   }
 
   // persist zoom level and map center here
-  func setMapDefaults() {
+  func setMapDefaults(centerLatitude: CLLocationDegrees, centerLongitude: CLLocationDegrees,
+                      latitudeDelta: CLLocationDegrees, longitudeDelta: CLLocationDegrees) {
 
+    UserDefaults.standard.set(Double(centerLatitude), forKey: "centerLatitude")
+    UserDefaults.standard.set(Double(centerLongitude), forKey: "centerLongitude")
+    UserDefaults.standard.set(Double(latitudeDelta), forKey: "latitudeDelta")
+    UserDefaults.standard.set(Double(longitudeDelta), forKey: "longitudeDelta")
   }
 
   func defaultAnnotation() -> MKPointAnnotation {
@@ -194,6 +227,16 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     }
   }
 
+  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    if segue.identifier == "photoAlbumSegue" {
+      let controller = segue.destination as! PhotoAlbumViewController
+      controller.mapAnnotation = selectedAnnotation
+      controller.pin = selectedPin
+      //print("I'm going to the photo album!")
+    }
+  }
+
+  // MARK: MKMapViewDelegate
   func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
 
     let reuseId = "pin"
@@ -235,14 +278,21 @@ class TravelLocationsViewController: UIViewController, MKMapViewDelegate {
     }
   }
 
-  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    if segue.identifier == "photoAlbumSegue" {
-      let controller = segue.destination as! PhotoAlbumViewController
-      controller.mapAnnotation = selectedAnnotation
-      controller.pin = selectedPin
-      //print("I'm going to the photo album!")
-    }
-  }
+  func mapViewDidChangeVisibleRegion(_ mapView: MKMapView) {
+    print("map region changed, yo!")
+    // this is where we save to user defaults
+    // and then it gets re-read in viewwillappear
 
+    let currentRegion = mapView.region
+    let center = currentRegion.center
+    let centerLatitude = center.latitude  // persist this in UserDefaults
+    let centerLongitude = center.longitude  // persist this in UserDefaults
+
+    let span = currentRegion.span
+    let latitudeDelta = span.latitudeDelta  // persist this in UserDefaults
+    let longitudeDelta = span.longitudeDelta  // persist this in UserDefaults
+
+    setMapDefaults(centerLatitude: centerLatitude, centerLongitude: centerLongitude, latitudeDelta: latitudeDelta, longitudeDelta: longitudeDelta)
+  }
 }
 
