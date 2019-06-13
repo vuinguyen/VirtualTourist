@@ -206,10 +206,10 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     // keep the total number of pics available for location current
     self.totalNumPicsAvailable = totalNumPics
 
+    // when updateAllPics is true, all pictures in the collection view / photo album is being replaced
     if updateAllPics == true {
 
       if flickrPhotos.count > 0 {
-        // must delete these from Core Data!!
         let indexPathsToDelete = (photoCollectionView.indexPathsForVisibleItems).sorted().reversed()
         for indexPath in indexPathsToDelete {
           deletePhoto(at: indexPath)
@@ -221,7 +221,9 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
         addPhoto(flickrPhoto: photo)
       }
     } else {
-      // Remove old pictures from collection view first
+      // when updateAllPics is false,
+      // we are deleting only SOME pictures (selected by the user) from the collection view / photo album
+      // and replacing just the ones that were deleted with new pictures from Flickr
 
       // I have to do this weird thing where I sort and reverse the indexPaths to fix a bug
       // I was getting as pictures were being deleted
@@ -291,9 +293,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   }
 
   func deletePhoto(at indexPath: IndexPath) {
-    // delete from Core Data
-
-
+    // first, delete from Core Data
     do {
       let photoToDelete = fetchedResultsController.object(at: indexPath)
       managedContext.delete(photoToDelete)
@@ -302,7 +302,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       print("unable to delete photo")
     }
 
-    // delete from collection view
+    // then, delete from collection view
     self.flickrPhotos.remove(at: indexPath.row)
   }
 
@@ -341,7 +341,6 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   }
 
   override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-    //return pics.count
     return flickrPhotos.count
   }
 
