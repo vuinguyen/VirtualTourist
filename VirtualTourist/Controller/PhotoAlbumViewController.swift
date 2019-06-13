@@ -348,11 +348,11 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reusePhotoCellIdentifier, for: indexPath) as! PhotoCollectionViewCell
 
-    // first, we'll put a placeholder here
+    // first, we'll put a placeholder here by changing the cell's background color to gray
     // then, we'll check to see if FlickerPhoto.photoImage exists, display that
     // else download the image from flickr
 
-    cell.photoImageView.image = UIImage(named: "Placeholder1")
+    cell.backgroundColor = .lightGray
 
     let flickrPhoto = self.flickrPhotos[(indexPath as NSIndexPath).row]
     if let image = flickrPhoto.photoImage {
@@ -377,7 +377,9 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
         }
       }
     }
-  
+
+    // remove the placeholder by changing cell's background color back to none
+    cell.backgroundColor = .none
     return cell
   }
 
