@@ -19,7 +19,10 @@ class FlickrClient {
   }
 
   class func getRandomPageNum(totalPicsAvailable: Int, maxNumPicsDisplayed: Int) -> Int {
-    let numPages = totalPicsAvailable / maxNumPicsDisplayed
+    let flickrLimit = 4000
+    // number of pages of results is based on the total number of pics available, or the flickr limit,
+    // whichever amount is smaller, divided by the maximum number of pics allowed to be displayed in the album
+    let numPages = min(totalPicsAvailable, flickrLimit) / maxNumPicsDisplayed
     let randomPageNum = Int.random(in: 0...numPages)
     print("totalPicsAvailable is \(totalPicsAvailable)")
     print("numPages is \(numPages)")
