@@ -33,14 +33,9 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
       print("we're in pic selection mode, yo!")
       print("Indices of pics to remove, BEFORE: \(indexPathsOfPicsToRemove)")
 
-      FlickrClient.getFlickrPhotos(latitude: latitude,
-                                   longitude: longitude,
-                                   totalNumPicsAvailable: totalNumPicsAvailable,
-                                   updatedNumPicsToDisplay: indexPathsOfPicsToRemove.count,
-                                   maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNums, error) in
-                                    self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNums, error: error, updateAllPics: false)
-      }
-
+      // just remove photos
+      // we don't need to get new photos to replace the deleted ones
+      self.updateCollectionView(flickrPhotos: nil, totalNumPics: nil, error: nil, updateAllPics: false)
     } else {
       print("we're getting all new pics!")
 
@@ -173,7 +168,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
                                      updatedNumPicsToDisplay: maxPicsDisplayed,
                                      maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNums, error) in
           self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNums, error: error)
-        } // end gotPhotoList
+        } 
       } // end else
     } // end do
 
@@ -189,25 +184,24 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
   }
 
   func updateCollectionView(flickrPhotos: [FlickrPhoto]?, totalNumPics: Int?, error: Error?, updateAllPics: Bool = true) {
-
-    guard let flickrPhotos = flickrPhotos,
-      let totalNumPics = totalNumPics else
-    {
-      self.flickrPhotos = []
-      noPicturesLabel.isHidden = false
-      updateWithPics(picsUpdated: true)
-
-      if let error = error {
-        print("we got an error \(error)")
-      }
-      return
-    }
-
-    // keep the total number of pics available for location current
-    self.totalNumPicsAvailable = totalNumPics
-
     // when updateAllPics is true, all pictures in the collection view / photo album is being replaced
     if updateAllPics == true {
+
+      guard let flickrPhotos = flickrPhotos,
+        let totalNumPics = totalNumPics else
+      {
+        self.flickrPhotos = []
+        noPicturesLabel.isHidden = false
+        updateWithPics(picsUpdated: true)
+
+        if let error = error {
+          print("we got an error \(error)")
+        }
+        return
+      }
+
+      // keep the total number of pics available for location current
+      self.totalNumPicsAvailable = totalNumPics
 
       if flickrPhotos.count > 0 {
         let indexPathsToDelete = (photoCollectionView.indexPathsForVisibleItems).sorted().reversed()
@@ -223,7 +217,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
     } else {
       // when updateAllPics is false,
       // we are deleting only SOME pictures (selected by the user) from the collection view / photo album
-      // and replacing just the ones that were deleted with new pictures from Flickr
+      // but we are NOT replacing the pictures that were deleted
 
       // I have to do this weird thing where I sort and reverse the indexPaths to fix a bug
       // I was getting as pictures were being deleted
@@ -235,11 +229,6 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
         // deselect the pictures that were removed
         let cell = photoCollectionView.cellForItem(at: indexPath) as! PhotoCollectionViewCell
         cell.backgroundColor = .none
-      }
-
-      print("number of flickrPhotos is \(flickrPhotos.count)")
-      for photo in flickrPhotos {
-        addPhoto(flickrPhoto: photo)
       }
 
       // set everything back to original settings
