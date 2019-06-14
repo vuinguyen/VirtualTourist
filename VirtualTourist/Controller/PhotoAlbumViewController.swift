@@ -168,7 +168,7 @@ class PhotoAlbumViewController: UICollectionViewController, MKMapViewDelegate {
                                      updatedNumPicsToDisplay: maxPicsDisplayed,
                                      maxNumPicsDisplayed: maxPicsDisplayed) { (flickrPhotos, totalNums, error) in
           self.updateCollectionView(flickrPhotos: flickrPhotos, totalNumPics: totalNums, error: error)
-        } 
+        }
       } // end else
     } // end do
 
