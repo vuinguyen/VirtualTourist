@@ -26,10 +26,13 @@ struct APIKeys {
 Built for my class project, as part of the Udacity iOS nanodegree program.
 
 Main screen with map pins of tourist locations:
+
 ![Tourist Locations](/screenshots/MainScreen.png)
 
 Edit pins screen to delete existing pins of tourist locations:
+
 ![Edit Pins](/screenshots/EditPinsScreen.png)
 
 Photo album screen displaying pictures for a location:
+
 ![Photo Album](/screenshots/PhotoAlbum.png)
